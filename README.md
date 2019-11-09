@@ -7,3 +7,5 @@ Since we do not separate human detection and action classification procedures, t
 We show some detection results with our framework here.
 
 ![img](brush_hair_Brushing_Hair_with_Beth_brush_hair_h_nm_np1_le_goo_0.gif)
+![img](catch_Torwarttraining_catch_u_cm_np1_ri_med_1.gif)
+![img](pullup_Random_Pull_Up_Exercises_pullup_f_nm_np1_ba_med_0.gif)
