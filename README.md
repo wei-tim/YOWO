@@ -28,6 +28,7 @@ If you use this code or pre-trained models, please cite the following:
 
 ```bibtex
 @InProceedings{kopuklu2019yowo,
+title={You Only Watch Once: A Unified CNN Architecture for Real-Time Spatiotemporal Action Localization},
 author={K{\"o}p{\"u}kl{\"u}, Okan and Wei, Xiangyu and Rigoll, Gerhard},
 journal={arXiv preprint arXiv:1911.06644},
 year={2019}
