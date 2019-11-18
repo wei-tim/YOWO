@@ -1,6 +1,6 @@
 # You Only Watch Once (YOWO)
 
-PyTorch implementation of the article "[You Only Watch Once: A Unified CNN Architecture for Real-Time Spatiotemporal Action Localization](https://arxiv.org/pdf/1911.06644.pdf)". ***Code will uploaded soon!***
+PyTorch implementation of the article "[You Only Watch Once: A Unified CNN Architecture for Real-Time Spatiotemporal Action Localization](https://arxiv.org/pdf/1911.06644.pdf)". ***Code will be uploaded soon!***
 <br/>
 <div align="center" style="width:image width px;">
   <img  src="https://github.com/wei-tim/YOWO/blob/master/examples/biking.gif" width=240 alt="biking">
