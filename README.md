@@ -22,8 +22,6 @@ Since we do not separate human detection and action classification procedures, t
 
 <br/>
 <br/>
-<br/>
-
 
 ### Citation
 If you use this code or pre-trained models, please cite the following:
