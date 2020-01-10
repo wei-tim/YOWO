@@ -21,9 +21,6 @@ In this work, we present ***YOWO*** (***Y**ou **O**nly **W**atch **O**nce*), a u
 
 Since we do not separate human detection and action classification procedures, the whole network can be optimized by a joint loss in an end-to-end framework. We have carried out a series of comparative evaluations on two challenging representative datasets **UCF101-24** and **J-HMDB-21**. Our approach outperforms the other state-of-the-art results while retaining real-time capability, providing 34 frames-per-second on 16-frames input clips and 62 frames-per-second on 8-frames input clips.
 
-<br/>
-<br/>
-
 
 ## Installation
 ```bash
@@ -34,9 +31,8 @@ cd YOWO
 ### Datasets
 
 * UCF101-24: Download from [here](https://drive.google.com/file/d/1o2l6nYhd-0DDXGP-IPReBP4y1ffVmGSE/view?usp=sharing)
-<br/>
 * J-HMDB-21: Download from [here](http://jhmdb.is.tue.mpg.de/challenge/JHMDB/datasets)
-<br/>
+
 Modify the paths in ucf24.data and jhmdb21.data under cfg directory accordingly.
 
 Download the dataset annotations from [here](https://www.dropbox.com/sh/16jv2kwzom1pmlt/AABL3cFWDfG5MuH9PwnjSJf0a?dl=0).
@@ -47,11 +43,11 @@ Download the dataset annotations from [here](https://www.dropbox.com/sh/16jv2kwz
 ```bash
 wget http://pjreddie.com/media/files/yolo.weights
 ```
-<br/>
+
 * ResNeXt ve ResNet pretrained models can be downloaded from [here](https://drive.google.com/drive/folders/1zvl89AgFAApbH0At-gMuZSeQB_LpNP-M?usp=sharing).
-<br/>
+
 ***NOTE:*** For JHMDB-21 trainings, jhmdb51 finetuned pretrained models should be used! (e.g. "resnext-101-kinetics-hmdb51_split1.pth").
-<br/>
+
 * For resource efficient 3D CNN architectures (ShuffleNet, ShuffleNetv2, MobileNet, MobileNetv2), pretrained models can be downloaded from [here](https://github.com/okankop/Efficient-3DCNNs).
 
 ### Pretrained YOWO models
