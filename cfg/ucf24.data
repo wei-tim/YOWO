@@ -1,0 +1,6 @@
+base = /usr/home/sut/datasets/ucf24
+train = /usr/home/sut/datasets/ucf24/trainlist.txt
+valid = /usr/home/sut/datasets/ucf24/testlist.txt
+names = data/ucf24.names
+backup = backup
+gpus  = 0

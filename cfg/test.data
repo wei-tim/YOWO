@@ -1,0 +1,3 @@
+valid = /usr/home/sut/yolo_video/test/IceDancing/v_IceDancing_g02_c06
+names = data/ucf24.names
+gpus  = 0
