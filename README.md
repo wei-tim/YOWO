@@ -54,7 +54,7 @@ wget http://pjreddie.com/media/files/yolo.weights
 
 Pretrained models can be downloaded from [here](https://www.dropbox.com/sh/16jv2kwzom1pmlt/AABL3cFWDfG5MuH9PwnjSJf0a?dl=0).
 
-
+***NOTE:*** With some extra tricks, YOWO achieves 87.5% and 76.7% frame_mAP for UCF101-24 and J-HMDB-21 datasets, respectively.
 
 ## Running the code
 
