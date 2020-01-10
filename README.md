@@ -24,7 +24,7 @@ Since we do not separate human detection and action classification procedures, t
 
 ## Installation
 ```bash
-https://github.com/wei-tim/YOWO.git
+git clone https://github.com/wei-tim/YOWO.git
 cd YOWO
 ```
 
