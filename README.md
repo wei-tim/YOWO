@@ -62,13 +62,13 @@ Pretrained models can be downloaded from [here](https://www.dropbox.com/sh/16jv2
 
 ```bash
 python train.py --dataset ucf101-24 \
-	 			--data_cfg cfg/ucf24.data \
-	 			--cfg_file cfg/ucf24.cfg \
-	 			--n_classes 24 \
-	 			--backbone_3d resnext101 \
-	 			--backbone_3d_weights weights/resnext-101-kinetics.pth \
-	 			--backbone_2d darknet \
-	 			--backbone_2d_weights weights/yolo.weights \
+		--data_cfg cfg/ucf24.data \
+		--cfg_file cfg/ucf24.cfg \
+		--n_classes 24 \
+		--backbone_3d resnext101 \
+		--backbone_3d_weights weights/resnext-101-kinetics.pth \
+		--backbone_2d darknet \
+		--backbone_2d_weights weights/yolo.weights \
 ```
 
 ## Validating the model
