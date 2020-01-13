@@ -46,7 +46,7 @@ wget http://pjreddie.com/media/files/yolo.weights
 
 * ResNeXt ve ResNet pretrained models can be downloaded from [here](https://drive.google.com/drive/folders/1zvl89AgFAApbH0At-gMuZSeQB_LpNP-M?usp=sharing).
 
-***NOTE:*** For JHMDB-21 trainings, jhmdb51 finetuned pretrained models should be used! (e.g. "resnext-101-kinetics-hmdb51_split1.pth").
+***NOTE:*** For JHMDB-21 trainings, HMDB-51 finetuned pretrained models should be used! (e.g. "resnext-101-kinetics-hmdb51_split1.pth").
 
 * For resource efficient 3D CNN architectures (ShuffleNet, ShuffleNetv2, MobileNet, MobileNetv2), pretrained models can be downloaded from [here](https://github.com/okankop/Efficient-3DCNNs).
 
