@@ -59,7 +59,7 @@ Pretrained models can be downloaded from [here](https://www.dropbox.com/sh/16jv2
 ## Running the code
 
 * Example training bash scripts are provided in 'run_ucf101-24.sh' and 'run_jhmdb-21.sh'.
-
+* UCF101-24 training:
 ```bash
 python train.py --dataset ucf101-24 \
 		--data_cfg cfg/ucf24.data \
@@ -69,6 +69,19 @@ python train.py --dataset ucf101-24 \
 		--backbone_3d_weights weights/resnext-101-kinetics.pth \
 		--backbone_2d darknet \
 		--backbone_2d_weights weights/yolo.weights \
+```
+* J-HMDB-21 training:
+```bash
+python train.py --dataset jhmdb-21 \
+		--data_cfg cfg/jhmdb21.data \
+		--cfg_file cfg/jhmdb21.cfg \
+		--n_classes 21 \
+		--backbone_3d resnext101 \
+		--backbone_3d_weights weights/resnext-101-kinetics-hmdb51_split1.pth \
+		--freeze_backbone_3d \
+		--backbone_2d darknet \
+		--backbone_2d_weights weights/yolo.weights \
+		--freeze_backbone_2d \
 ```
 
 ## Validating the model
