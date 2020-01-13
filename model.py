@@ -110,10 +110,8 @@ def get_fine_tuning_parameters(model, opt):
         for ft_module in ft_module_names:
             if ft_module in k:
                 parameters.append({'params': v})
-                print("####" , k)
                 break
         else:
-            print("@@@@" , k)
             parameters.append({'params': v, 'lr': 0.0})
     
     return parameters
