@@ -38,10 +38,10 @@ class YOWO(nn.Module):
             self.backbone_3d = resnet.resnet18(shortcut_type='A')
             num_ch_3d = 512 # Number of output channels for backbone_3d
         elif opt.backbone_3d == "resnet50":
-            self.backbone_3d = resnet.resnet18(shortcut_type='B')
+            self.backbone_3d = resnet.resnet50(shortcut_type='B')
             num_ch_3d = 2048 # Number of output channels for backbone_3d
         elif opt.backbone_3d == "resnet101":
-            self.backbone_3d = resnet.resnet18(shortcut_type='B')
+            self.backbone_3d = resnet.resnet101(shortcut_type='B')
             num_ch_3d = 2048 # Number of output channels for backbone_3d
         elif opt.backbone_3d == "mobilenet_2x":
             self.backbone_3d = mobilenet.get_model(width_mult=2.0)
