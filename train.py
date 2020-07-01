@@ -103,7 +103,7 @@ if opt.resume_path:
     print("===================================================================")
     print('loading checkpoint {}'.format(opt.resume_path))
     checkpoint = torch.load(opt.resume_path)
-    opt.begin_epoch = checkpoint['epoch']
+    opt.begin_epoch = checkpoint['epoch'] + 1
     best_fscore = checkpoint['fscore']
     model.load_state_dict(checkpoint['state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer'])
@@ -241,14 +241,14 @@ def test(epoch):
                     detection_path = os.path.join('ucf_detections', 'detections_'+str(epoch), frame_idx[i])
                     current_dir = os.path.join('ucf_detections', 'detections_'+str(epoch))
                     if not os.path.exists('ucf_detections'):
-                        os.mkdir(current_dir)
+                        os.mkdir('ucf_detections')
                     if not os.path.exists(current_dir):
                         os.mkdir(current_dir)
                 else:
                     detection_path = os.path.join('jhmdb_detections', 'detections_'+str(epoch), frame_idx[i])
                     current_dir = os.path.join('jhmdb_detections', 'detections_'+str(epoch))
                     if not os.path.exists('jhmdb_detections'):
-                        os.mkdir(current_dir)
+                        os.mkdir('jhmdb_detections')
                     if not os.path.exists(current_dir):
                         os.mkdir(current_dir)
 

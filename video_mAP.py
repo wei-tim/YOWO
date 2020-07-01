@@ -44,7 +44,7 @@ kwargs = {'num_workers': 0, 'pin_memory': True} if use_cuda else {}
 
 
 # Create model
-model = YOWO(opt)
+model       = YOWO(opt)
 model       = model.cuda()
 model       = nn.DataParallel(model, device_ids=None) # in multi-gpu case
 print(model)

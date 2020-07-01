@@ -207,7 +207,7 @@ parser.add_argument(
     '-gtformat',
     dest='gtFormat',
     metavar='',
-    default='xywh',
+    default='xyrb',
     help='format of the coordinates of the ground truth bounding boxes: '
     '(\'xywh\': <left> <top> <width> <height>)'
     ' or (\'xyrb\': <left> <top> <right> <bottom>)')
@@ -215,7 +215,7 @@ parser.add_argument(
     '-detformat',
     dest='detFormat',
     metavar='',
-    default='xywh',
+    default='xyrb',
     help='format of the coordinates of the detected bounding boxes '
     '(\'xywh\': <left> <top> <width> <height>) '
     'or (\'xyrb\': <left> <top> <right> <bottom>)')

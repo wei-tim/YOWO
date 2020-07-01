@@ -57,8 +57,6 @@ Pretrained models can be downloaded from [here](https://www.dropbox.com/sh/16jv2
 All materials (annotations and pretrained models) are also available in Baiduyun Disk:
 [here](https://pan.baidu.com/s/1yaOYqzcEx96z9gAkOhMnvQ) with password 95mm
 
-***NOTE:*** With some extra tricks, YOWO achieves 87.5% and 76.7% frame_mAP for UCF101-24 and J-HMDB-21 datasets, respectively.
-
 ## Running the code
 
 * Example training bash scripts are provided in 'run_ucf101-24.sh' and 'run_jhmdb-21.sh'.
@@ -98,6 +96,11 @@ python evaluation/Object-Detection-Metrics/pascalvoc.py --gtfolder PATH-TO-GROUN
 
 * For video_mAP, 'run_video_mAP_ucf.sh' and 'run_video_mAP_jhmdb.sh' bash scripts can be used.
 
+
+***UPDATEs:*** 
+* We have found a bug in our evaluation for calculating frame-mAP on UCF101-24 dataset (video-mAP results are same as before). We have fixed it, but the frame-mAP results for UCF101-24 are lower than before (if LFB are not used).
+* We have used freezing both 2D-CNN and 3D-CNN backbones for all models at the trainings of J-HMDB-21 dataset. This improved the performence considerable, especially for models having resource efficient 3D-CNN backbones.
+* We have implemented [Long-Term Feature Bank (LFB)](https://arxiv.org/pdf/1812.05038.pdf). Details can be found in the paper. It brings considerable improvement to UCF101-24 dataset and marginal improvement to J-HMDB-21 dataset. YOWO+LBF achieves 87.3% and 75.7% frame_mAP for UCF101-24 and J-HMDB-21 datasets, respectively.
 
 ### Citation
 If you use this code or pre-trained models, please cite the following:
