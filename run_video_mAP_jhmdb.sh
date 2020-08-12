@@ -4,4 +4,4 @@ python video_mAP.py --dataset jhmdb-21 \
 	 				--n_classes 21 \
 	 				--backbone_3d resnext101 \
 	 				--backbone_2d darknet \
-	 				--resume_path /usr/home/sut/yowo/backup/yowo_jhmdb-21_16f_best_fmap_07668.pth \
+	 				--resume_path /usr/home/sut/yowo/backup/yowo_jhmdb-21_16f_best.pth \
