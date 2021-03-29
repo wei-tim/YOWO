@@ -114,6 +114,10 @@ python video_mAP.py --cfg cfg/ucf24.yaml
 python test_video_ava.py --cfg cfg/ava.yaml
 ```
 
+***UPDATEs:*** 
+* YOWO is extended for AVA dataset. 
+* Old repo is deprecated and moved to [YOWO_deprecated](https://github.com/wei-tim/YOWO/tree/yowo_deprecated) branch. 
+
 ### Citation
 If you use this code or pre-trained models, please cite the following:
 
