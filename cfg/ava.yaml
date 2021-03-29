@@ -1,0 +1,48 @@
+TRAIN:
+  RESUME_PATH: "/usr/home/sut/YOWO/backup/ava/yowo_ava_32f_s1_best_ap_01905.pth"
+  DATASET: ava  # `ava`, `ucf24` or `jhmdb21`
+  BATCH_SIZE: 6
+  TOTAL_BATCH_SIZE: 128
+  LEARNING_RATE: 1e-4
+  EVALUATE: True
+  MODE: "val"  # `train`, `test` or `val`
+  BEGIN_EPOCH: 1
+  END_EPOCH: 10
+  CLASS_RATIO_FILE: "cfg/ava_categories_ratio.json"
+  USE_GROUNDTRUTH: False
+  USE_SLOWFAST: False
+DATA:
+  NUM_FRAMES: 32
+  SAMPLING_RATE: 1
+  TRAIN_JITTER_SCALES: [256, 320]
+  TRAIN_CROP_SIZE: 224
+  TEST_CROP_SIZE: 224
+SOLVER:
+  STEPS: [3, 4, 5, 6]
+  LR_DECAY_RATE: 0.5
+  ANCHORS: [0.71626, 2.13583, 1.28967, 4.15014, 2.12714, 5.09344, 3.27212, 5.87423, 5.16303, 6.33821]
+AVA:
+  BGR: False
+  DETECTION_SCORE_THRESH: 0.8
+  TEST_PREDICT_BOX_LISTS: ["person_box_67091280_iou90/ava_detection_val_boxes_and_labels.csv"]
+MODEL:
+  NUM_CLASSES: 80
+  BACKBONE_3D: resnext101
+  BACKBONE_2D: darknet
+WEIGHTS:
+  BACKBONE_3D: "weights/resnext-101-kinetics.pth"
+  BACKBONE_2D: "weights/yolo.weights"
+  FREEZE_BACKBONE_3D: False
+  FREEZE_BACKBONE_2D: False
+DATA_LOADER:
+  NUM_WORKERS: 8
+  PIN_MEMORY: True
+BACKUP_DIR: "backup/ava"
+DEMO:
+  ENABLE: False
+  OUT_PATH: "ava_detections/videos"
+  LABEL_FILE_PATH: "/usr/home/sut/datasets/AVA/annotations/ava_classnames.json"
+RNG_SEED: 1
+
+
+

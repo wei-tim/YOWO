@@ -58,9 +58,13 @@ class MobileNet(nn.Module):
                 input_channel = output_channel
         # make it nn.Sequential
         self.features = nn.Sequential(*self.features)
+        self.avgpool = nn.AvgPool3d((2, 1, 1), stride=1)
 
     def forward(self, x):
-        x = self.features(x) # Return the features before pooling
+        x = self.features(x)
+
+        if x.size(2) == 2:
+            x = self.avgpool(x)
         
         return x
 

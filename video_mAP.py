@@ -1,90 +1,94 @@
-import torch
-import torch.nn as nn
-import numpy as np
 import os
 import glob
-from opts import parse_opts
-from cfg import parse_cfg
+import numpy as np
+
+import torch
+import torch.nn as nn
 from torch.utils.data import Dataset
 from torchvision import transforms
 from scipy.io import loadmat
-from model import YOWO
-from utils import *
-from eval_results import *
 
-opt = parse_opts()
+from cfg import parser
+from core.model import YOWO
+from core.utils import *
+from core.eval_results import *
 
-dataset = opt.dataset
-assert dataset == 'ucf101-24' or dataset == 'jhmdb-21', 'invalid dataset'
 
-datacfg       = opt.data_cfg
-cfgfile       = opt.cfg_file
-gt_file       = 'finalAnnots.mat' # Necessary for ucf
 
-data_options  = read_data_cfg(datacfg)
-net_options   = parse_cfg(cfgfile)[0]
-loss_options  = parse_cfg(cfgfile)[1]
+####### Load configuration arguments
+# ---------------------------------------------------------------
+args  = parser.parse_args()
+cfg   = parser.load_config(args)
 
-base_path     = data_options['base']
+dataset = cfg.TRAIN.DATASET
+assert dataset == 'ucf24' or dataset == 'jhmdb21', 'invalid dataset'
+
+gt_file       = 'cfg/ucf24_finalAnnots.mat' # Necessary for ucf
+base_path     = cfg.LISTDATA.BASE_PTH
 testlist      = os.path.join(base_path, 'testlist_video.txt')
 
-clip_duration = int(net_options['clip_duration'])
-anchors       = loss_options['anchors'].split(',')
-anchors       = [float(i) for i in anchors]
-num_anchors   = int(loss_options['num'])
-num_classes   = opt.n_classes
+clip_duration = cfg.DATA.NUM_FRAMES
+sampling_rate = cfg.DATA.SAMPLING_RATE
+anchors       = [float(i) for i in cfg.SOLVER.ANCHORS]
+num_anchors   = cfg.SOLVER.NUM_ANCHORS
+num_classes   = cfg.MODEL.NUM_CLASSES
 
 # Test parameters
 conf_thresh   = 0.005
 nms_thresh    = 0.4
 eps           = 1e-5
 
-use_cuda = True
-kwargs = {'num_workers': 0, 'pin_memory': True} if use_cuda else {}
 
 
-# Create model
-model       = YOWO(opt)
-model       = model.cuda()
-model       = nn.DataParallel(model, device_ids=None) # in multi-gpu case
-print(model)
+####### Create model
+# ---------------------------------------------------------------
+model = YOWO(cfg)
+model = model.cuda()
+model = nn.DataParallel(model, device_ids=None) # in multi-gpu case
+# print(model)
+pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+logging('Total number of trainable parameters: {}'.format(pytorch_total_params))
+
 
 # Load resume path 
-if opt.resume_path:
+
+if cfg.TRAIN.RESUME_PATH:
     print("===================================================================")
-    print('loading checkpoint {}'.format(opt.resume_path))
-    checkpoint = torch.load(opt.resume_path)
+    print('loading checkpoint {}'.format(cfg.TRAIN.RESUME_PATH))
+    checkpoint = torch.load(cfg.TRAIN.RESUME_PATH)
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
+    print("Model loaded!")
     print("===================================================================")
+    del checkpoint
 
 
-
-def get_clip(root, imgpath, train_dur, dataset):
+def get_clip(root, imgpath, train_dur, sampling_rate, dataset):
     im_split = imgpath.split('/')
     num_parts = len(im_split)
     class_name = im_split[-3]
     file_name = im_split[-2]
     im_ind = int(im_split[num_parts - 1][0:5])
-    if dataset == 'ucf101-24':
+    if dataset == 'ucf24':
         img_name = os.path.join(class_name, file_name, '{:05d}.jpg'.format(im_ind))
-    elif dataset == 'jhmdb-21':
+    elif dataset == 'jhmdb21':
         img_name = os.path.join(class_name, file_name, '{:05d}.png'.format(im_ind))
     labpath = os.path.join(base_path, 'labels', class_name, file_name, '{:05d}.txt'.format(im_ind))
     img_folder = os.path.join(base_path, 'rgb-images', class_name, file_name)
     max_num = len(os.listdir(img_folder))
     clip = [] 
 
+    d = sampling_rate
     for i in reversed(range(train_dur)):
-        i_img = im_ind - i * 1
+        i_img = im_ind - i * d
         if i_img < 1:
             i_img = 1
         elif i_img > max_num:
             i_img = max_num
 
-        if dataset == 'ucf101-24':
+        if dataset == 'ucf24':
             path_tmp = os.path.join(base_path, 'rgb-images', class_name, file_name, '{:05d}.jpg'.format(i_img))
-        elif dataset == 'jhmdb-21':
+        elif dataset == 'jhmdb21':
             path_tmp = os.path.join(base_path, 'rgb-images', class_name, file_name, '{:05d}.png'.format(i_img))      
         clip.append(Image.open(path_tmp).convert('RGB'))
 
@@ -105,17 +109,18 @@ def get_clip(root, imgpath, train_dur, dataset):
     return clip, label, img_name
 
 class testData(Dataset):
-    def __init__(self, root, shape=None, transform=None, clip_duration=16):
+    def __init__(self, root, shape=None, transform=None, clip_duration=16, sampling_rate=1):
 
         self.root = root
-        if dataset == 'ucf101-24':
+        if dataset == 'ucf24':
             self.label_paths = sorted(glob.glob(os.path.join(root, '*.jpg')))
-        elif dataset == 'jhmdb-21':
+        elif dataset == 'jhmdb21':
             self.label_paths = sorted(glob.glob(os.path.join(root, '*.png')))
 
         self.shape = shape
         self.transform = transform
         self.clip_duration = clip_duration
+        self.sampling_rate = sampling_rate
 
     def __len__(self):
         return len(self.label_paths)
@@ -124,7 +129,7 @@ class testData(Dataset):
         assert index <= len(self), 'index range error'
         label_path = self.label_paths[index]
 
-        clip, label, img_name = get_clip(self.root, label_path, self.clip_duration, dataset)
+        clip, label, img_name = get_clip(self.root, label_path, self.clip_duration, self.sampling_rate, dataset)
         clip = [img.resize(self.shape) for img in clip]
 
         if self.transform is not None:
@@ -195,12 +200,11 @@ def video_mAP_ucf():
         test_loader = torch.utils.data.DataLoader(
                           testData(os.path.join(base_path, 'rgb-images', line),
                           shape=(224, 224), transform=transforms.Compose([
-                          transforms.ToTensor()]), clip_duration=clip_duration),
-                          batch_size=64, shuffle=False, **kwargs)
+                          transforms.ToTensor()]), clip_duration=clip_duration, sampling_rate=sampling_rate),
+                          batch_size=64, shuffle=False, num_workers= 8, pin_memory= True)
 
         for batch_idx, (data, target, img_name) in enumerate(test_loader):
-            if use_cuda:
-                data = data.cuda()
+            data = data.cuda()
             with torch.no_grad():
                 data = Variable(data)
                 output = model(data).data
@@ -261,8 +265,8 @@ def video_mAP_jhmdb():
         test_loader = torch.utils.data.DataLoader(
                           testData(os.path.join(base_path, 'rgb-images', line),
                           shape=(224, 224), transform=transforms.Compose([
-                          transforms.ToTensor()]), clip_duration=clip_duration),
-                          batch_size=1, shuffle=False, **kwargs)
+                          transforms.ToTensor()]), clip_duration=clip_duration, sampling_rate=sampling_rate),
+                          batch_size=1, shuffle=False, num_workers= 8, pin_memory= True)
 
         video_name = ''
         v_annotation = {}
@@ -274,8 +278,7 @@ def video_mAP_jhmdb():
             if video_name == '':
                 video_name = os.path.join(path_split[0], path_split[1])
 
-            if use_cuda:
-                data = data.cuda()
+            data = data.cuda()
             with torch.no_grad():
                 data = Variable(data)
                 output = model(data).data
@@ -328,8 +331,8 @@ def video_mAP_jhmdb():
 
 
 if __name__ == '__main__':
-    if opt.dataset == 'ucf101-24':
+    if cfg.TRAIN.DATASET == 'ucf24':
         video_mAP_ucf()
-    elif opt.dataset == 'jhmdb-21':
+    elif cfg.TRAIN.DATASET == 'jhmdb21':
         video_mAP_jhmdb()
     

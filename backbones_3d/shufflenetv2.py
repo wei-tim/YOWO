@@ -146,13 +146,17 @@ class ShuffleNetV2(nn.Module):
 
         # building last several layers
         self.conv_last      = conv_1x1x1_bn(input_channel, self.stage_out_channels[-1])
+        self.avgpool        = nn.AvgPool3d((2, 1, 1), stride=1)
     
 
     def forward(self, x):
         out = self.conv1(x)
         out = self.maxpool(out)
         out = self.features(out)
-        out = self.conv_last(out) # Return the features before pooling
+        out = self.conv_last(out) 
+
+        if out.size(2) == 2:
+            out = self.avgpool(out)
 
         return out
 
