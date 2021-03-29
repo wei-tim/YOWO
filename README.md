@@ -107,10 +107,12 @@ python evaluation/Object-Detection-Metrics/pascalvoc.py --gtfolder PATH-TO-GROUN
 python video_mAP.py --cfg cfg/ucf24.yaml
 ```
 
-***UPDATEs:*** 
-* We have found a bug in our evaluation for calculating frame-mAP on UCF101-24 dataset (video-mAP results are same as before). We have fixed it, but the frame-mAP results for UCF101-24 are lower than before (if LFB are not used).
-* We have used freezing both 2D-CNN and 3D-CNN backbones for all models at the trainings of J-HMDB-21 dataset. This improved the performence considerable, especially for models having resource efficient 3D-CNN backbones.
-* We have implemented [Long-Term Feature Bank (LFB)](https://arxiv.org/pdf/1812.05038.pdf). Details can be found in the paper. It brings considerable improvement to UCF101-24 dataset and marginal improvement to J-HMDB-21 dataset. YOWO+LBF achieves 87.3% and 75.7% frame_mAP for UCF101-24 and J-HMDB-21 datasets, respectively.
+## Running on a text video
+
+* You can run AVA pretrained model on any test video with the following code:
+```bash
+python test_video_ava.py --cfg cfg/ava.yaml
+```
 
 ### Citation
 If you use this code or pre-trained models, please cite the following:
