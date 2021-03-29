@@ -1,14 +1,19 @@
 # You Only Watch Once (YOWO)
 
-PyTorch implementation of the article "[You Only Watch Once: A Unified CNN Architecture for Real-Time Spatiotemporal Action Localization](https://arxiv.org/pdf/1911.06644.pdf)".
+PyTorch implementation of the article "[You Only Watch Once: A Unified CNN Architecture for Real-Time Spatiotemporal Action Localization](https://arxiv.org/pdf/1911.06644.pdf)". The repositry contains code for real-time spatiotemporal action localization with PyTorch on AVA, UCF101-24 and JHMDB datasets!
+
+<span style="color: green"> Updated paper </span> can be accessed via [YOWO_updated.pdf](https://github.com/wei-tim/YOWO/blob/master/examples/YOWO_updated.pdf)
 
 AVA dataset visualizations!
 <br/>
+<br/>
 <div align="center" style="width:image width px;">
-  <img  src="https://github.com/wei-tim/YOWO/blob/master/examples/ava1.gif" width=240 alt="ava_example_1">
-  <img  src="https://github.com/wei-tim/YOWO/blob/master/examples/ava3.gif" width=240 alt="ava_example_2">
+  <img  src="https://github.com/wei-tim/YOWO/blob/master/examples/ava3.gif" width=240 alt="ava_example_1">
+  <img  src="https://github.com/wei-tim/YOWO/blob/master/examples/ava1.gif" width=240 alt="ava_example_2">
   <img  src="https://github.com/wei-tim/YOWO/blob/master/examples/ava4.gif" width=240 alt="ava_example_3">
 </div>
+<br/>
+<br/>
 
 UCF101-24 and J-HMDB-21 datasets visualizations!
 <br/>
@@ -39,11 +44,13 @@ cd YOWO
 
 ### Datasets
 
+* AVA	   : Download from [here](https://github.com/cvdfoundation/ava-dataset)
 * UCF101-24: Download from [here](https://drive.google.com/file/d/1o2l6nYhd-0DDXGP-IPReBP4y1ffVmGSE/view?usp=sharing)
 * J-HMDB-21: Download from [here](http://jhmdb.is.tue.mpg.de/challenge/JHMDB/datasets)
 
-Modify the paths in ucf24.data and jhmdb21.data under cfg directory accordingly.
+Use instructions [here](https://github.com/facebookresearch/SlowFast/blob/master/slowfast/datasets/DATASET.md) for the preperation of AVA dataset.
 
+Modify the paths in ucf24.data and jhmdb21.data under cfg directory accordingly.
 Download the dataset annotations from [here](https://www.dropbox.com/sh/16jv2kwzom1pmlt/AABL3cFWDfG5MuH9PwnjSJf0a?dl=0).
 
 ### Download backbone pretrained weights
@@ -61,50 +68,44 @@ wget http://pjreddie.com/media/files/yolo.weights
 
 ### Pretrained YOWO models
 
-Pretrained models can be downloaded from [here](https://www.dropbox.com/sh/16jv2kwzom1pmlt/AABL3cFWDfG5MuH9PwnjSJf0a?dl=0).
+Pretrained models for UCF101-24 and J-HMDB-21 datasets can be downloaded from [here](https://www.dropbox.com/sh/16jv2kwzom1pmlt/AABL3cFWDfG5MuH9PwnjSJf0a?dl=0).
+
+Pretrained models for AVA dataset can be downloaded from [here](https://drive.google.com/drive/folders/1g-jTfxCV9_uNFr61pjo4VxNfgDlbWLlb?usp=sharing).
 
 All materials (annotations and pretrained models) are also available in Baiduyun Disk:
 [here](https://pan.baidu.com/s/1yaOYqzcEx96z9gAkOhMnvQ) with password 95mm
 
 ## Running the code
 
-* Example training bash scripts are provided in 'run_ucf101-24.sh' and 'run_jhmdb-21.sh'.
+* All training configurations are given in [ava.yaml](https://github.com/wei-tim/YOWO/blob/master/cfg/ava.yaml), [ucf24.yaml](https://github.com/wei-tim/YOWO/blob/master/cfg/ucf24.yaml) and [jhmdb.yaml](https://github.com/wei-tim/YOWO/blob/master/cfg/jhmdb.yaml) files.
+* AVA training:
+```bash
+python main.py --cfg cfg/ava.yaml
+```
 * UCF101-24 training:
 ```bash
-python train.py --dataset ucf101-24 \
-		--data_cfg cfg/ucf24.data \
-		--cfg_file cfg/ucf24.cfg \
-		--n_classes 24 \
-		--backbone_3d resnext101 \
-		--backbone_3d_weights weights/resnext-101-kinetics.pth \
-		--backbone_2d darknet \
-		--backbone_2d_weights weights/yolo.weights \
+python main.py --cfg cfg/ucf24.yaml
 ```
 * J-HMDB-21 training:
 ```bash
-python train.py --dataset jhmdb-21 \
-		--data_cfg cfg/jhmdb21.data \
-		--cfg_file cfg/jhmdb21.cfg \
-		--n_classes 21 \
-		--backbone_3d resnext101 \
-		--backbone_3d_weights weights/resnext-101-kinetics-hmdb51_split1.pth \
-		--freeze_backbone_3d \
-		--backbone_2d darknet \
-		--backbone_2d_weights weights/yolo.weights \
-		--freeze_backbone_2d \
+python main.py --cfg cfg/jhmdb.yaml
 ```
 
 ## Validating the model
 
-* After each validation, frame detections is recorded under 'jhmdb_detections' or 'ucf_detections'. From [here](https://www.dropbox.com/sh/16jv2kwzom1pmlt/AABL3cFWDfG5MuH9PwnjSJf0a?dl=0), 'groundtruths_jhmdb.zip' and 'groundtruths_jhmdb.zip' should be downloaded and extracted to "evaluation/Object-Detection-Metrics". Then, run the following command to calculate frame_mAP.
+* For AVA dataset, after each epoch, validation is performed and frame-mAP score is provided.
+
+* For UCF101-24 and J-HMDB-21 datasets, after each validation, frame detections is recorded under 'jhmdb_detections' or 'ucf_detections'. From [here](https://www.dropbox.com/sh/16jv2kwzom1pmlt/AABL3cFWDfG5MuH9PwnjSJf0a?dl=0), 'groundtruths_jhmdb.zip' and 'groundtruths_jhmdb.zip' should be downloaded and extracted to "evaluation/Object-Detection-Metrics". Then, run the following command to calculate frame_mAP.
 
 ```bash
 python evaluation/Object-Detection-Metrics/pascalvoc.py --gtfolder PATH-TO-GROUNDTRUTHS-FOLDER --detfolder PATH-TO-DETECTIONS-FOLDER
 
 ```
 
-* For video_mAP, 'run_video_mAP_ucf.sh' and 'run_video_mAP_jhmdb.sh' bash scripts can be used.
-
+* For video_mAP, set the pretrained model in the correct yaml file and run:
+```bash
+python video_mAP.py --cfg cfg/ucf24.yaml
+```
 
 ***UPDATEs:*** 
 * We have found a bug in our evaluation for calculating frame-mAP on UCF101-24 dataset (video-mAP results are same as before). We have fixed it, but the frame-mAP results for UCF101-24 are lower than before (if LFB are not used).
