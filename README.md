@@ -2,7 +2,7 @@
 
 PyTorch implementation of the article "[You Only Watch Once: A Unified CNN Architecture for Real-Time Spatiotemporal Action Localization](https://arxiv.org/pdf/1911.06644.pdf)". The repositry contains code for real-time spatiotemporal action localization with PyTorch on AVA, UCF101-24 and JHMDB datasets!
 
-**Updated paper** can be accessed via [YOWO_updated.pdf](https://github.com/wei-tim/YOWO/blob/master/examples/YOWO_updated.pdf)
+**Updated paper** can be accessed via [**YOWO_updated.pdf**](https://github.com/wei-tim/YOWO/blob/master/examples/YOWO_updated.pdf)
 
 AVA dataset visualizations!
 <br/>
