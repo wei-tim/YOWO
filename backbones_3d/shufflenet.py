@@ -100,6 +100,7 @@ class ShuffleNet(nn.Module):
         self.layer1  = self._make_layer(out_planes[1], num_blocks[0], self.groups)
         self.layer2  = self._make_layer(out_planes[2], num_blocks[1], self.groups)
         self.layer3  = self._make_layer(out_planes[3], num_blocks[2], self.groups)
+        self.avgpool = nn.AvgPool3d((2, 1, 1), stride=1)
 
     def _make_layer(self, out_planes, num_blocks, groups):
         layers = []
@@ -114,7 +115,10 @@ class ShuffleNet(nn.Module):
         out = self.maxpool(out)
         out = self.layer1(out)
         out = self.layer2(out)
-        out = self.layer3(out) # Return the features before pooling
+        out = self.layer3(out)
+
+        if out.size(2) == 2:
+            out = self.avgpool(out)
 
         return out
 

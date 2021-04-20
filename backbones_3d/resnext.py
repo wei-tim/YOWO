@@ -102,12 +102,7 @@ class ResNeXt(nn.Module):
         
         self.layer4 = self._make_layer(
             block, 1024, layers[3], shortcut_type, cardinality, stride=2)
-        # last_duration = int(math.ceil(sample_duration / 16))
-        # #last_duration = 1
-        # last_size = int(math.ceil(sample_size / 32))
-        # self.avgpool = nn.AvgPool3d(
-        #     (last_duration, last_size, last_size), stride=1)
-        # self.fc = nn.Linear(cardinality * 32 * block.expansion, num_classes)
+        self.avgpool = nn.AvgPool3d((2, 1, 1), stride=1)
 
         for m in self.modules():
             if isinstance(m, nn.Conv3d):
@@ -159,10 +154,8 @@ class ResNeXt(nn.Module):
         x = self.layer3(x)
         x = self.layer4(x)
 
-        # x = self.avgpool(x)
-
-        # x = x.view(x.size(0), -1)
-        # x = self.fc(x)
+        if x.size(2) == 2:
+            x = self.avgpool(x)
 
         return x
 

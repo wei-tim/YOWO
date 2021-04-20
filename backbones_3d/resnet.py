@@ -131,6 +131,7 @@ class ResNet(nn.Module):
             block, 256, layers[2], shortcut_type, stride=2)
         self.layer4 = self._make_layer(
             block, 512, layers[3], shortcut_type, stride=2)
+        self.avgpool = nn.AvgPool3d((2, 1, 1), stride=1)
 
         for m in self.modules():
             if isinstance(m, nn.Conv3d):
@@ -173,7 +174,10 @@ class ResNet(nn.Module):
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
-        x = self.layer4(x) # Return the features before pooling
+        x = self.layer4(x)
+
+        if x.size(2) == 2:
+            x = self.avgpool(x)
 
         return x
 

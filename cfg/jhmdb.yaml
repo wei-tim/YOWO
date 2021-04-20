@@ -1,0 +1,52 @@
+TRAIN:
+  RESUME_PATH: "/usr/home/sut/YOWO/backup/jhmdb/yowo_jhmdb21_32f_best.pth"
+  DATASET: jhmdb21  # `ava`, `ucf24` or `jhmdb21`
+  BATCH_SIZE: 6
+  TOTAL_BATCH_SIZE: 128
+  LEARNING_RATE: 1e-4
+  EVALUATE: False
+  FINE_TUNE: False
+  BEGIN_EPOCH: 1
+  END_EPOCH: 10
+SOLVER:
+  MOMENTUM: 0.9
+  WEIGHT_DECAY: 5e-4
+  STEPS: [3, 4, 5, 6]
+  LR_DECAY_RATE: 0.5
+  ANCHORS: [0.95878, 3.10197, 1.67204, 4.0040, 1.75482, 5.64937, 3.09299, 5.80857, 4.91803, 6.25225]
+  NUM_ANCHORS: 5
+  OBJECT_SCALE: 5
+  NOOBJECT_SCALE: 1
+  CLASS_SCALE: 1
+  COORD_SCALE: 1
+DATA:
+  NUM_FRAMES: 32
+  SAMPLING_RATE: 1
+  TRAIN_JITTER_SCALES: [256, 320]
+  TRAIN_CROP_SIZE: 224
+  TEST_CROP_SIZE: 224
+  MEAN: [0.4345, 0.4051, 0.3775]
+  STD: [0.2768, 0.2713, 0.2737]
+MODEL:
+  NUM_CLASSES: 21
+  BACKBONE_3D: resnext101
+  BACKBONE_2D: darknet
+WEIGHTS:
+  BACKBONE_3D: "weights/resnext-101-kinetics-hmdb51_split1.pth"
+  BACKBONE_2D: "weights/yolo.weights"
+  FREEZE_BACKBONE_3D: True
+  FREEZE_BACKBONE_2D: True
+LISTDATA:
+  BASE_PTH: "/usr/home/sut/Tim-Documents/jhmdb/data/jhmdb"
+  TRAIN_FILE: "/usr/home/sut/Tim-Documents/jhmdb/data/jhmdb/trainlist.txt"
+  TEST_FILE: "/usr/home/sut/Tim-Documents/jhmdb/data/jhmdb/testlist.txt"
+  TEST_VIDEO_FILE: "/data1/jhmdb/testlist_video.txt"
+  MAX_OBJS: 1
+  CLASS_NAMES: [
+    "brush_hair", "catch", "clap", "climb_stairs", "golf", 
+    "jump", "kick_ball", "pick", "pour", "pullup", "push",
+    "run", "shoot_ball", "shoot_bow", "shoot_gun", "sit",
+    "stand", "swing_baseball", "throw", "walk", "wave"
+  ]
+BACKUP_DIR: "backup/jhmdb"
+RNG_SEED: 1
