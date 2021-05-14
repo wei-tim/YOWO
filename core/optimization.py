@@ -175,16 +175,17 @@ def test_ucf24_jhmdb21(cfg, epoch, model, test_loader):
                 num_gts = truths_length(truths)
         
                 total = total + num_gts
-    
+                pred_list = [] # LIST OF CONFIDENT BOX INDICES
                 for i in range(len(boxes)):
                     if boxes[i][4] > 0.25:
                         proposals = proposals+1
+                        pred_list.append(i)
 
                 for i in range(num_gts):
                     box_gt = [truths[i][1], truths[i][2], truths[i][3], truths[i][4], 1.0, 1.0, truths[i][0]]
                     best_iou = 0
                     best_j = -1
-                    for j in range(len(boxes)):
+                    for j in pred_list: # ITERATE THROUGH ONLY CONFIDENT BOXES
                         iou = bbox_iou(box_gt, boxes[j], x1y1x2y2=False)
                         if iou > best_iou:
                             best_j = j
