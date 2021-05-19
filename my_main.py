@@ -4,7 +4,6 @@ import sys
 import time
 import math
 import random
-import pdb
 
 import torch
 import torch.nn as nn
@@ -66,10 +65,11 @@ if cfg.TRAIN.RESUME_PATH:
     print('loading checkpoint {}'.format(cfg.TRAIN.RESUME_PATH))
     checkpoint = torch.load(cfg.TRAIN.RESUME_PATH)
     cfg.TRAIN.BEGIN_EPOCH = checkpoint['epoch'] + 1
-    best_score = checkpoint['score']
+    best_score = checkpoint['fscore']
+    #best_score = checkpoint['score']
     model.load_state_dict(checkpoint['state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer'])
-    print("Loaded model score: ", checkpoint['score'])
+    print("Loaded model score: ", checkpoint['fscore'])
     print("===================================================================")
     del checkpoint
 
@@ -89,9 +89,6 @@ if dataset == 'ava':
     train_dataset = Ava(cfg, split='train', only_detection=False)
     test_dataset  = Ava(cfg, split='val', only_detection=False)
 
-    import pdb
-    pdb.set_trace()
-    
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=True, 
                                                num_workers=cfg.DATA_LOADER.NUM_WORKERS, drop_last=True, pin_memory=True)
     
@@ -122,6 +119,7 @@ elif dataset in ['ucf24', 'jhmdb21']:
 
     loss_module   = RegionLoss(cfg).cuda()
 
+    # loads from core module the optimization module
     train = getattr(sys.modules[__name__], 'train_ucf24_jhmdb21')
     test  = getattr(sys.modules[__name__], 'test_ucf24_jhmdb21')
 

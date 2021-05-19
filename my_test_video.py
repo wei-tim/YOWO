@@ -35,18 +35,6 @@ cfg   = parser.load_config(args)
 ####### Create model
 # ---------------------------------------------------------------
 model = YOWO(cfg)
-
-#pdb.set_trace()
-
-#yolov4_mbds_near_model = "/home/bill/code/training/finished/v0_yolov4_pacsp_mbds_near_coach_color_players_ball/weights/best.pt"
-
-#from ptyolo.models.models import Darknet, load_darknet_weights
-
-#try:
-#    model.backbone_2d.load_state_dict(torch.load(yolov4_mbds_near_model)['model'])
-#except:
-#    load_darknet_weights(model.backbone_2d, yolov4_mbds_near_model)
-
 model = model.cuda()
 model = nn.DataParallel(model, device_ids=None) # in multi-gpu case
 
@@ -68,17 +56,28 @@ if cfg.TRAIN.RESUME_PATH:
 ####### Test parameters
 # ---------------------------------------------------------------
 
-labelmap, _       = read_labelmap("/run/media/second_drive/datasets/ava/annotations/ava_action_list_v2.2.pbtxt")
-#pdb.set_trace()
+# THIS HAS TO CHANGE
+#labelmap = {k:v for k,v in zip(range(23), cfg.LISTDATA.CLASS_NAMES)}
+labels = {}
+labelmap = {}
+for i in range(23):
+    labels['id'] = i
+    labels['name'] = cfg.LISTDATA.CLASS_NAMES[i]
+    labelmap.update(labels)
+
+pdb.set_trace()
+labelmap = {{'id':1, 'name':'Basketball'}, {'id':2, 'name':'BasketballDunk'}}
+#labelmap, _       = read_labelmap("/home/bill/datasets/ucf24/annotations/ava_action_list_v2.2.pbtxt")
 num_classes       = cfg.MODEL.NUM_CLASSES
 clip_length		  = cfg.DATA.NUM_FRAMES
 crop_size 		  = cfg.DATA.TEST_CROP_SIZE
 anchors           = [float(i) for i in cfg.SOLVER.ANCHORS]
 num_anchors       = cfg.SOLVER.NUM_ANCHORS
-nms_thresh        = 0.5
-conf_thresh_valid = 0.5 # For more stable results, this threshold is increased!
+nms_thresh        = 0.2
+conf_thresh_valid = 0.2 # For more stable results, this threshold is increased!
 
-meter = AVAMeter(cfg, cfg.TRAIN.MODE, 'latest_detection.json')
+# THIS HAS TO CHANGE
+#meter = AVAMeter(cfg, cfg.TRAIN.MODE, 'latest_detection.json')
 
 model.eval()
 
@@ -89,24 +88,19 @@ model.eval()
 
 ####### Data preparation and inference 
 # ---------------------------------------------------------------
-
-#video_path = '/home/bill/datasets/ava/videos/9Y_l9NsnYE0.mp4'
-video_path = '/home/videos/2021-01-27_15-54-32/side_near.avi'
+video_path = 'side_near.avi'
 cap = cv2.VideoCapture(video_path)
 
 cnt = 1
 queue = []
 while(cap.isOpened()):
-    
-    #start = time.time()
-    # Reads frames 
     ret, frame = cap.read()
+    
+    frame = frame[350:1050, 500:1200, :]
+    #cropped_frame = frame[350:1050, 500:1200, :]
+    #cv2.imwrite('cropped/cropped_{}.jpg'.format(cnt), cropped_frame)
 
-    # At initialization, populate queue with initial frame - 
-    # as many times as the chosen clip length
-    # So the first video will be duplicated x32 times 
-    # if the chosen clip length is 32 
-    if len(queue) <= 0: 
+    if len(queue) <= 0: # At initialization, populate queue with initial frame
     	for i in range(clip_length):
     		queue.append(frame)
 
@@ -115,9 +109,8 @@ while(cap.isOpened()):
     queue.pop(0)
 
     # Resize images
-    imgs = [cv2_transform.resize(crop_size, img[550:850,900:1200,:]) for img in queue]
-    
-    frame = img = cv2.resize(frame[550:850,900:1200,:], (crop_size, crop_size), interpolation=cv2.INTER_LINEAR)
+    imgs = [cv2_transform.resize(crop_size, img) for img in queue]
+    frame = img = cv2.resize(frame, (crop_size, crop_size), interpolation=cv2.INTER_LINEAR)
 
     # Convert image to CHW keeping BGR order.
     imgs = [cv2_transform.HWC2CHW(img) for img in imgs]
@@ -151,14 +144,15 @@ while(cap.isOpened()):
     imgs = torch.from_numpy(imgs)
     imgs = torch.unsqueeze(imgs, 0)
 
-
     # Model inference
     with torch.no_grad():
-        start = time.time()
+        # imgs. shape = torch.Size([1, 3, 16, 224, 224]) when making the forward
         output = model(imgs)
-        pdb.set_trace()
+
         preds = []
+        # THIS HAS TO CHANGE
         all_boxes = get_region_boxes_ava(output, conf_thresh_valid, num_classes, anchors, num_anchors, 0, 1)
+        #all_boxes = get_region_boxes(output, conf_thresh_valid, num_classes, anchors, num_anchors, 0, 1)
         for i in range(output.size(0)):
             boxes = all_boxes[i]
             boxes = nms(boxes, nms_thresh)
@@ -174,15 +168,15 @@ while(cap.isOpened()):
 
     # for line in preds:
     # 	print(line)
-    
-    end  = time.time()
-    print(end-start)
     for dets in preds:
+        # dets[0] has the x,y,w,h
+        # dets[1] has the class scores (24 probabilities)
         x1 = int(dets[0][0] * crop_size)
         y1 = int(dets[0][1] * crop_size)
         x2 = int(dets[0][2] * crop_size)
         y2 = int(dets[0][3] * crop_size) 
         cls_scores = np.array(dets[1])
+        # return the indices of classes that have class score > 0.4
         indices = np.where(cls_scores>0.4)
         scores = cls_scores[indices]
         indices = list(indices[0])
@@ -196,7 +190,8 @@ while(cap.isOpened()):
             text_size = []
             # scores, indices  = [list(a) for a in zip(*sorted(zip(scores,indices), reverse=True))] # if you want, you can sort according to confidence level
             for _, cls_ind in enumerate(indices):
-                text.append("[{:.2f}] ".format(scores[_]) + str(labelmap[cls_ind]['name']))
+                #text.append("[{:.2f}] ".format(scores[_]) + str(labelmap[cls_ind]['name']))
+                text.append("[{:.2f}] ".format(scores[_]) + cfg.LISTDATA.CLASS_NAMES[cls_ind])
                 text_size.append(cv2.getTextSize(text[-1], font, fontScale=0.25, thickness=1)[0])
                 coord.append((x1+3, y1+7+10*_))
                 cv2.rectangle(blk, (coord[-1][0]-1, coord[-1][1]-6), (coord[-1][0]+text_size[-1][0]+1, coord[-1][1]+text_size[-1][1]-4), (0, 255, 0), cv2.FILLED)
@@ -207,11 +202,11 @@ while(cap.isOpened()):
 
 
     #cv2.imshow('frame',frame)
-    #cv2.imwrite('inference_side_near/{:05d}.jpg'.format(cnt), frame) # save figures if necessay
+    cv2.imwrite('inference/{:05d}.jpg'.format(cnt), frame) # save figures if necessay
     cnt += 1
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    #if cv2.waitKey(1) & 0xFF == ord('q'):
+    #    break
 
 
-cap.release()
-cv2.destroyAllWindows()
+#cap.release()
+#cv2.destroyAllWindows()
