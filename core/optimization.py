@@ -15,6 +15,7 @@ def train_ava(cfg, epoch, model, train_loader, loss_module, optimizer):
     for batch_idx, batch in enumerate(train_loader):
         data = batch['clip'].cuda()
         target = {'cls': batch['cls'], 'boxes': batch['boxes']}
+
         output = model(data)
         loss = loss_module(output, target, epoch, batch_idx, l_loader)
 
