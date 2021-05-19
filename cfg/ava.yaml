@@ -1,18 +1,18 @@
 TRAIN:
-  RESUME_PATH: "/usr/home/sut/YOWO/backup/ava/yowo_ava_32f_s1_best_ap_01905.pth"
+  RESUME_PATH: "/home/bill/code/yowo/pretrained_models/YOWO_AVA_pretrained/yowo_ava_32f_s1_best_ap_01905.pth"
   DATASET: ava  # `ava`, `ucf24` or `jhmdb21`
   BATCH_SIZE: 6
   TOTAL_BATCH_SIZE: 128
   LEARNING_RATE: 1e-4
-  EVALUATE: True
-  MODE: "val"  # `train`, `test` or `val`
+  EVALUATE: False
+  MODE: "test"  # `train`, `test` or `val`
   BEGIN_EPOCH: 1
   END_EPOCH: 10
   CLASS_RATIO_FILE: "cfg/ava_categories_ratio.json"
   USE_GROUNDTRUTH: False
   USE_SLOWFAST: False
 DATA:
-  NUM_FRAMES: 32
+  NUM_FRAMES: 16
   SAMPLING_RATE: 1
   TRAIN_JITTER_SCALES: [256, 320]
   TRAIN_CROP_SIZE: 224

@@ -1,8 +1,8 @@
 TRAIN:
-  RESUME_PATH: "/usr/home/sut/YOWO/backup/ucf24/yowo_ucf24_16f_best_08181.pth"
+  RESUME_PATH: "pretrained_models/yowo_ucf101-24_16f_best.pth"
   DATASET: ucf24  # `ava`, `ucf24` or `jhmdb21`
-  BATCH_SIZE: 10
-  TOTAL_BATCH_SIZE: 128
+  BATCH_SIZE: 5 #10
+  TOTAL_BATCH_SIZE: 64 #128
   LEARNING_RATE: 1e-4
   EVALUATE: False
   FINE_TUNE: False
@@ -37,10 +37,10 @@ WEIGHTS:
   FREEZE_BACKBONE_3D: False
   FREEZE_BACKBONE_2D: False
 LISTDATA:
-  BASE_PTH: "/usr/home/sut/datasets/ucf24"
-  TRAIN_FILE: "/usr/home/sut/datasets/ucf24/trainlist.txt"
-  TEST_FILE: "/usr/home/sut/datasets/ucf24/testlist.txt"
-  TEST_VIDEO_FILE: "/usr/home/sut/datasets/ucf24/testlist_video.txt"
+  BASE_PTH: "/home/bill/datasets/ucf24"
+  TRAIN_FILE: "/home/bill/datasets/ucf24/trainlist.txt"
+  TEST_FILE: "/home/bill/datasets/ucf24/testlist.txt"
+  TEST_VIDEO_FILE: "/home/bill/datasets/ucf24/testlist_video.txt"
   MAX_OBJS: 6
   CLASS_NAMES: [
     "Basketball", "BasketballDunk", "Biking", "CliffDiving", "CricketBowling", 

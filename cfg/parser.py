@@ -28,7 +28,7 @@ def parse_args():
     )
     parser.add_argument( # added for now
         '--dataset',
-        default='ucf101-24', 
+        default='ava', 
         type=str, 
         help='Select dataset from (ucf101-24, jhmdb-21, ava)'
     )
@@ -36,7 +36,7 @@ def parse_args():
         "--cfg",
         dest="cfg_file",
         help="Path to the config file",
-        default="cfg/ava.yaml",
+        default="cfg/ucf24.yaml",
         type=str,
     )
     parser.add_argument(
