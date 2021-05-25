@@ -66,10 +66,13 @@ if cfg.TRAIN.RESUME_PATH:
     print('loading checkpoint {}'.format(cfg.TRAIN.RESUME_PATH))
     checkpoint = torch.load(cfg.TRAIN.RESUME_PATH)
     cfg.TRAIN.BEGIN_EPOCH = checkpoint['epoch'] + 1
-    best_score = checkpoint['score']
+    try:
+        best_score = checkpoint['score']
+    except KeyError:
+        best_score = checkpoint['fscore']
     model.load_state_dict(checkpoint['state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer'])
-    print("Loaded model score: ", checkpoint['score'])
+    print("Loaded model score: ", best_score)
     print("===================================================================")
     del checkpoint
 
@@ -88,9 +91,6 @@ assert dataset == 'ucf24' or dataset == 'jhmdb21' or dataset == 'ava', 'invalid 
 if dataset == 'ava':
     train_dataset = Ava(cfg, split='train', only_detection=False)
     test_dataset  = Ava(cfg, split='val', only_detection=False)
-
-    import pdb
-    pdb.set_trace()
     
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=True, 
                                                num_workers=cfg.DATA_LOADER.NUM_WORKERS, drop_last=True, pin_memory=True)
@@ -102,8 +102,6 @@ if dataset == 'ava':
 
     train = getattr(sys.modules[__name__], 'train_ava')
     test  = getattr(sys.modules[__name__], 'test_ava')
-
-
 
 elif dataset in ['ucf24', 'jhmdb21']:
     train_dataset = list_dataset.UCF_JHMDB_Dataset(cfg.LISTDATA.BASE_PTH, cfg.LISTDATA.TRAIN_FILE, dataset=dataset,
@@ -124,7 +122,6 @@ elif dataset in ['ucf24', 'jhmdb21']:
 
     train = getattr(sys.modules[__name__], 'train_ucf24_jhmdb21')
     test  = getattr(sys.modules[__name__], 'test_ucf24_jhmdb21')
-
 
 ####### Training and Testing Schedule
 # ---------------------------------------------------------------
