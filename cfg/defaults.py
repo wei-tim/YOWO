@@ -27,7 +27,8 @@ _C.BN.MOMENTUM = 0.1
 _C.BN.USE_PRECISE_STATS = False
 
 # Number of samples use to compute precise bn.
-_C.BN.NUM_BATCHES_PRECISE = 200
+#_C.BN.NUM_BATCHES_PRECISE = 200
+_C.BN.NUM_BATCHES_PRECISE = 25
 
 # Weight decay value that applies on BN.
 _C.BN.WEIGHT_DECAY = 0.0
@@ -56,10 +57,12 @@ _C.TRAIN.ENABLE = True
 _C.TRAIN.DATASET = "ava"
 
 # Total mini-batch size.
-_C.TRAIN.BATCH_SIZE = 64
+#_C.TRAIN.BATCH_SIZE = 64
+_C.TRAIN.BATCH_SIZE = 10
 
 # Total batch size to accumulate loss
-_C.TRAIN.TOTAL_BATCH_SIZE = 128
+#_C.TRAIN.TOTAL_BATCH_SIZE = 128
+_C.TRAIN.TOTAL_BATCH_SIZE = 20
 
 _C.TRAIN.LEARNING_RATE = 1e-4
 
@@ -568,25 +571,23 @@ _C.DETECTION.ROI_XFORM_RESOLUTION = 7
 _C.AVA = CfgNode()
 
 # Directory path of frames.
-# _C.AVA.FRAME_DIR = "/mnt/fair-flash3-east/ava_trainval_frames.img/"
-_C.AVA.FRAME_DIR = "/run/media/second_drive/datasets/ava/frames/"
+#_C.AVA.FRAME_DIR = "/run/media/second_drive/datasets/ava/frames/"
+_C.AVA.FRAME_DIR = "/home/bill/datasets/dummy_action/frames/"
 
 # Directory path for files of frame lists.
-# _C.AVA.FRAME_LIST_DIR = (
-#     "/mnt/vol/gfsai-flash3-east/ai-group/users/haoqifan/ava/frame_list/"
-# )
+#_C.AVA.FRAME_LIST_DIR = (
+#    "/run/media/second_drive/datasets/ava/frame_lists/"
+#)
 _C.AVA.FRAME_LIST_DIR = (
-    "/run/media/second_drive/datasets/ava/frame_lists/"
+    "/home/bill/datasets/dummy_action/frame_lists/"
 )
-
 # Directory path for annotation files.
-# _C.AVA.ANNOTATION_DIR = (
-#     "/mnt/vol/gfsai-flash3-east/ai-group/users/haoqifan/ava/frame_list/"
-# )
+#_C.AVA.ANNOTATION_DIR = (
+#    "/run/media/second_drive/datasets/ava/annotations/"
+#)
 _C.AVA.ANNOTATION_DIR = (
-    "/run/media/second_drive/datasets/ava/annotations/"
+    "/home/bill/datasets/dummy_action/annotations/"
 )
-
 # Filenames of training samples list files.
 _C.AVA.TRAIN_LISTS = ["train.csv"]
 
