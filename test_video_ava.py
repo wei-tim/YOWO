@@ -91,7 +91,7 @@ model.eval()
 # ---------------------------------------------------------------
 
 #video_path = '/home/bill/datasets/ava/videos/9Y_l9NsnYE0.mp4'
-video_path = '/home/videos/2021-01-27_15-54-32/side_near.avi'
+video_path = '/home/videos/2021-01-27_15-54-32/side_far.avi'
 cap = cv2.VideoCapture(video_path)
 
 cnt = 1
@@ -115,10 +115,12 @@ while(cap.isOpened()):
     queue.pop(0)
 
     # Resize images
-    imgs = [cv2_transform.resize(crop_size, img[550:850,900:1200,:]) for img in queue]
-    
-    frame = img = cv2.resize(frame[550:850,900:1200,:], (crop_size, crop_size), interpolation=cv2.INTER_LINEAR)
+    #imgs = [cv2_transform.resize(crop_size, img[550:850,900:1200,:]) for img in queue]
+    imgs = [cv2_transform.resize(crop_size, img[:,:,:]) for img in queue]
 
+    #frame = img = cv2.resize(frame[550:850,900:1200,:], (crop_size, crop_size), interpolation=cv2.INTER_LINEAR)
+    frame = img = cv2.resize(frame[:,:,:], (crop_size, crop_size), interpolation=cv2.INTER_LINEAR)
+    
     # Convert image to CHW keeping BGR order.
     imgs = [cv2_transform.HWC2CHW(img) for img in imgs]
 
@@ -156,7 +158,6 @@ while(cap.isOpened()):
     with torch.no_grad():
         start = time.time()
         output = model(imgs)
-        pdb.set_trace()
         preds = []
         all_boxes = get_region_boxes_ava(output, conf_thresh_valid, num_classes, anchors, num_anchors, 0, 1)
         for i in range(output.size(0)):
@@ -172,18 +173,19 @@ while(cap.isOpened()):
                 cls_out = [det_conf * x.cpu().numpy() for x in box[5]]
                 preds.append([[x1,y1,x2,y2], cls_out])
 
+    pdb.set_trace()
     # for line in preds:
     # 	print(line)
     
     end  = time.time()
-    print(end-start)
+    #print(end-start)
     for dets in preds:
         x1 = int(dets[0][0] * crop_size)
         y1 = int(dets[0][1] * crop_size)
         x2 = int(dets[0][2] * crop_size)
         y2 = int(dets[0][3] * crop_size) 
         cls_scores = np.array(dets[1])
-        indices = np.where(cls_scores>0.4)
+        indices = np.where(cls_scores>0.03)
         scores = cls_scores[indices]
         indices = list(indices[0])
         scores = list(scores)
@@ -207,7 +209,7 @@ while(cap.isOpened()):
 
 
     #cv2.imshow('frame',frame)
-    #cv2.imwrite('inference_side_near/{:05d}.jpg'.format(cnt), frame) # save figures if necessay
+    cv2.imwrite('inference_side_far/{:05d}.jpg'.format(cnt), frame) # save figures if necessay
     cnt += 1
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

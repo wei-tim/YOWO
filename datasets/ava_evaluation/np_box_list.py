@@ -54,11 +54,13 @@ class BoxList(object):
             raise ValueError(
                 "Invalid data type for box data: float is required."
             )
-        if not self._is_valid_boxes(data):
-            raise ValueError(
-                "Invalid box data. data must be a numpy array of "
-                "N*[y_min, x_min, y_max, x_max]"
-            )
+        #import pdb
+        #pdb.set_trace()
+        #if not self._is_valid_boxes(data):
+        #    raise ValueError(
+        #        "Invalid box data. data must be a numpy array of "
+        #        "N*[y_min, x_min, y_max, x_max]"
+        #    )
         self.data = {"boxes": data}
 
     def num_boxes(self):

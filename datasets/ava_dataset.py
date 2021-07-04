@@ -36,7 +36,8 @@ class Ava(torch.utils.data.Dataset):
         self._data_std = cfg.DATA.STD
         self._use_bgr = cfg.AVA.BGR
         self.random_horizontal_flip = cfg.DATA.RANDOM_FLIP
-        self.n_classes = 80
+        # REMEMBER TO CHANGE THIS!
+        self.n_classes = 4
         if self._split == "train":
             self._crop_size = cfg.DATA.TRAIN_CROP_SIZE
             self._jitter_min_scale = cfg.DATA.TRAIN_JITTER_SCALES[0]
@@ -64,6 +65,16 @@ class Ava(torch.utils.data.Dataset):
             self._image_paths,
             self._video_idx_to_name,
         ) = ava_helper.load_image_lists(cfg, is_train=(self._split == "train"))
+        
+        #self.video_idx_to_name = os.listdir('/run/media/second_drive/datasets/ava/frames')
+        #list(set(self._video_idx_to_name) - set(self.video_idx_to_name))
+        #self.image_paths = []
+        #for image_path in self._image_paths:
+        #    if image_path[0].split('/')[-2] in self.video_idx_to_name:
+        #        self.image_paths.append(image_path)
+        
+        #self._image_paths = self.image_paths
+        #self._video_idx_to_name = self.video_idx_to_name
 
         # Loading annotations for boxes and labels.
         # boxes_and_labels: {'<video_name>': {<frame_num>: a list of [box_i, box_i_labels]} }
@@ -71,6 +82,9 @@ class Ava(torch.utils.data.Dataset):
             cfg, mode=self._split
         )
 
+        #import pdb
+        #pdb.set_trace()
+        
         assert len(boxes_and_labels) == len(self._image_paths)
 
         # boxes_and_labels: a list of {<frame_num>: a list of [box_i, box_i_labels]}
@@ -98,6 +112,9 @@ class Ava(torch.utils.data.Dataset):
         )
         self.print_summary()
 
+        #import pdb
+        #pdb.set_trace()
+        
     def print_summary(self):
         logger.info("=== AVA dataset summary ===")
         logger.info("Split: {}".format(self._split))
@@ -273,6 +290,7 @@ class Ava(torch.utils.data.Dataset):
         boxes = cv2_transform.transform_cxcywh(boxes, imgs[0].shape[1], imgs[0].shape[2])
         assert bx_count == boxes.shape[0]
 
+        #pdb.set_trace()
         return imgs, boxes
 
     def __getitem__(self, idx):
@@ -290,6 +308,7 @@ class Ava(torch.utils.data.Dataset):
                 "ori_boxes" and "metadata".
         """
         # Get the frame idxs for current clip. We can use it as center or latest
+
         video_idx, sec_idx, sec, frame_idx = self._keyframe_indices[idx]
         clip_label_list = self._keyframe_boxes_and_labels[video_idx][sec_idx]
 
@@ -302,13 +321,15 @@ class Ava(torch.utils.data.Dataset):
             sample_rate,
             num_frames=len(self._image_paths[video_idx]),
         )
+        #import pdb
+        #pdb.set_trace()
         image_paths = [self._image_paths[video_idx][frame - 1] for frame in seq]
         imgs = retry_load_images(image_paths, backend=self.cfg.AVA.IMG_PROC_BACKEND)
 
         assert len(clip_label_list) > 0
         assert len(clip_label_list) <= self._max_objs
         num_objs = len(clip_label_list)
-        keyframe_info = self._image_paths[video_idx][frame_idx - 1]
+        #keyframe_info = self._image_paths[video_idx][frame_idx - 1]
         src_height, src_width = imgs[0].shape[0], imgs[0].shape[1]
 
         # Get boxes and labels for current clip.

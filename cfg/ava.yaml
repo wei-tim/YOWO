@@ -1,14 +1,16 @@
 TRAIN:
-  RESUME_PATH: "/home/bill/code/yowo/pretrained_models/YOWO_AVA_pretrained/yowo_ava_32f_s1_best_ap_01905.pth"
+# RESUME_PATH: "/home/bill/code/yowo/pretrained_models/YOWO_AVA_pretrained/yowo_ava_32f_s1_best_ap_01905.pth"
+# RESUME_PATH: "/home/bill/code/yowo/backup/ava/yowo_ava_16f_checkpoint.pth"
+  RESUME_PATH: ""
   DATASET: ava  # `ava`, `ucf24` or `jhmdb21`
-  BATCH_SIZE: 6
-  TOTAL_BATCH_SIZE: 128
+  BATCH_SIZE: 3
+  TOTAL_BATCH_SIZE: 64
   LEARNING_RATE: 1e-4
   EVALUATE: False
-  MODE: "test"  # `train`, `test` or `val`
+  MODE: "train"  # `train`, `test` or `val`
   BEGIN_EPOCH: 1
-  END_EPOCH: 10
-  CLASS_RATIO_FILE: "cfg/ava_categories_ratio.json"
+  END_EPOCH: 50
+  CLASS_RATIO_FILE: "cfg/dummy_dataset_ratio.json"
   USE_GROUNDTRUTH: False
   USE_SLOWFAST: False
 DATA:
@@ -23,10 +25,11 @@ SOLVER:
   ANCHORS: [0.71626, 2.13583, 1.28967, 4.15014, 2.12714, 5.09344, 3.27212, 5.87423, 5.16303, 6.33821]
 AVA:
   BGR: False
-  DETECTION_SCORE_THRESH: 0.8
+  DETECTION_SCORE_THRESH: 0.5
   TEST_PREDICT_BOX_LISTS: ["person_box_67091280_iou90/ava_detection_val_boxes_and_labels.csv"]
 MODEL:
-  NUM_CLASSES: 80
+# NUM_CLASSES: 80
+  NUM_CLASSES: 4
   BACKBONE_3D: resnext101
   BACKBONE_2D: darknet
 WEIGHTS:

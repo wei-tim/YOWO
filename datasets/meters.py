@@ -50,9 +50,10 @@ class AVAMeter(object):
         self.mode = mode
         self.output_json = os.path.join(self.cfg.BACKUP_DIR, output_json)
         self.full_ava_test = cfg.AVA.FULL_TEST_ON_VAL
-        self.excluded_keys = read_exclusions(
-            os.path.join(cfg.AVA.ANNOTATION_DIR, cfg.AVA.EXCLUSION_FILE)
-        )
+        #self.excluded_keys = read_exclusions(
+        #    os.path.join(cfg.AVA.ANNOTATION_DIR, cfg.AVA.EXCLUSION_FILE)
+        #)
+        self.excluded_keys = []
         self.categories, self.class_whitelist = read_labelmap(
             os.path.join(cfg.AVA.ANNOTATION_DIR, cfg.AVA.LABEL_MAP_FILE)
         )
@@ -79,7 +80,9 @@ class AVAMeter(object):
         name = "latest"
         write_results(detections, os.path.join(self.cfg.BACKUP_DIR, "detections_%s.csv" % name))
         write_results(groundtruth, os.path.join(self.cfg.BACKUP_DIR, "groundtruth_%s.csv" % name))
+        
         results = run_evaluation(self.categories, groundtruth, detections, self.excluded_keys)
+        
         with open(self.output_json, 'w') as fp:
             json.dump(results, fp)
         logger.info("Save eval results in {}".format(self.output_json))

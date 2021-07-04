@@ -3,8 +3,8 @@ mv *txt /home/bill/
 # /home/videos/2021-01-29_15-22-54
 #IN_DATA_DIR="/home/videos/2021-02-02_15-50-21"
 #OUT_DATA_DIR="/home/videos/2021-02-02_15-50-21/frames"
-IN_DATA_DIR="/home/bill/datasets/mindy_test_action/10fps/2021-01-29_15-22-54"
-OUT_DATA_DIR="/home/bill/datasets/mindy_test_action/10fps/2021-01-29_15-22-54/frames"
+IN_DATA_DIR="/home/bill/datasets/4k/2021-06-30_16-17-26"
+OUT_DATA_DIR="/home/bill/datasets/4k/2021-06-30_16-17-26/frames"
 
 if [[ ! -d "${OUT_DATA_DIR}" ]]; then
   echo "${OUT_DATA_DIR} doesn't exist. Creating it.";
@@ -26,7 +26,7 @@ do
 
   out_name="${out_video_dir}/${video_name}_%06d.jpg"
 
-  ffmpeg -i "${video}" -r 10 -q:v 1 "${out_name}"
+  ffmpeg -i "${video}" -r 20 -q:v 1 "${out_name}"
 done
 
 mv /home/bill/*txt .

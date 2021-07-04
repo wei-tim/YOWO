@@ -2,6 +2,7 @@ import time
 import json
 import torch
 import torch.nn.functional as F
+import pdb
 
 import math
 import torch.nn as nn
@@ -294,8 +295,8 @@ class binary_FocalLoss(nn.Module):
         self._init_class_weight()
 
     def _init_class_weight(self):
-        self.register_buffer('class_weight', torch.zeros(80))
-        for i in range(1, 81):
+        self.register_buffer('class_weight', torch.zeros(4))
+        for i in range(1, 4):
             self.class_weight[i - 1] = 1 - self.class_ratio[str(i)]
             # n = self.class_ratio[str(i)]
             # self.class_weight[i - 1] = (1 - self.beta) / (1 - self.beta ** n)
@@ -435,6 +436,7 @@ def build_targets_Ava(pred_boxes, target, anchors, num_anchors, num_classes, nH,
             th[b][best_n][gj][gi] = math.log(gh/anchors[anchor_step*best_n+1])
             iou = bbox_iou(gt_box, pred_box, x1y1x2y2=False) # best_iou
             # confidence equals to iou of the corresponding anchor
+            #pdb.set_trace()
             tconf[b][best_n][gj][gi] = iou
             tcls[b][best_n][gj][gi][:] = target_cls[b,t,:]
             # if ious larger than 0.5, we justify it as a correct prediction

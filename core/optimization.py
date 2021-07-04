@@ -1,6 +1,7 @@
 import os
 import torch
 import time
+import pdb
 from core.utils import *
 from datasets.meters import AVAMeter
 
@@ -12,11 +13,14 @@ def train_ava(cfg, epoch, model, train_loader, loss_module, optimizer):
     l_loader = len(train_loader)
 
     model.train()
+    #import pdb
+    #pdb.set_trace()
     for batch_idx, batch in enumerate(train_loader):
         data = batch['clip'].cuda()
         target = {'cls': batch['cls'], 'boxes': batch['boxes']}
 
         output = model(data)
+        #pdb.set_trace()
         loss = loss_module(output, target, epoch, batch_idx, l_loader)
 
         loss.backward()
@@ -85,6 +89,7 @@ def test_ava(cfg, epoch, model, test_loader):
 
             preds = []
             all_boxes = get_region_boxes_ava(output, conf_thresh_valid, num_classes, anchors, num_anchors, 0, 1)
+
             for i in range(output.size(0)):
                 boxes = all_boxes[i]
                 boxes = nms(boxes, nms_thresh)

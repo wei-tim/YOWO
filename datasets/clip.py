@@ -8,8 +8,6 @@ import numpy as np
 from core.utils import *
 import cv2
 
-
-
 def scale_image_channel(im, c, v):
     cs = list(im.split())
     cs[c] = cs[c].point(lambda i: i * v)
