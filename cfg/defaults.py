@@ -296,7 +296,7 @@ _C.DATA.TEST_CROP_SIZE = 256  # original is 256
 
 # Input videos may has different fps, convert it to the target video fps before
 # frame sampling.
-_C.DATA.TARGET_FPS = 30
+_C.DATA.TARGET_FPS = 20
 
 # Decoding backend, options include `pyav` or `torchvision`
 _C.DATA.DECODING_BACKEND = "pyav"
@@ -571,23 +571,14 @@ _C.DETECTION.ROI_XFORM_RESOLUTION = 7
 _C.AVA = CfgNode()
 
 # Directory path of frames.
-#_C.AVA.FRAME_DIR = "/run/media/second_drive/datasets/ava/frames/"
-_C.AVA.FRAME_DIR = "/home/bill/datasets/dummy_action/frames/"
+_C.AVA.FRAME_DIR = "/home/bill/datasets/avalike_mbarv1/frames/"
 
 # Directory path for files of frame lists.
-#_C.AVA.FRAME_LIST_DIR = (
-#    "/run/media/second_drive/datasets/ava/frame_lists/"
-#)
-_C.AVA.FRAME_LIST_DIR = (
-    "/home/bill/datasets/dummy_action/frame_lists/"
-)
+_C.AVA.FRAME_LIST_DIR = ("/home/bill/datasets/avalike_mbarv1/frame_lists/")
+
 # Directory path for annotation files.
-#_C.AVA.ANNOTATION_DIR = (
-#    "/run/media/second_drive/datasets/ava/annotations/"
-#)
-_C.AVA.ANNOTATION_DIR = (
-    "/home/bill/datasets/dummy_action/annotations/"
-)
+_C.AVA.ANNOTATION_DIR = ("/home/bill/datasets/avalike_mbarv1/annotations/")
+
 # Filenames of training samples list files.
 _C.AVA.TRAIN_LISTS = ["train.csv"]
 
@@ -649,26 +640,8 @@ _C.AVA.GROUNDTRUTH_FILE = "ava_val_v2.2.csv"
 # Backend to process image, includes `pytorch` and `cv2`.
 _C.AVA.IMG_PROC_BACKEND = "cv2"
 
-# -----------------------------------------------------------------------------
-# list Dataset options
-# -----------------------------------------------------------------------------
-_C.LISTDATA = CfgNode()
-_C.LISTDATA.BASE_PTH = "/home/bill/datasets/ucf24"
-_C.LISTDATA.TRAIN_FILE = "/home/bill/datasets/ucf24/trainlist.txt"
-_C.LISTDATA.TEST_FILE = "/home/bill/datasets/ucf24/testlist.txt"
-_C.LISTDATA.TEST_VIDEO_FILE = "/home/bill/datasets/ucf24/testlist_video.txt"
-_C.LISTDATA.MAX_OBJS = 6
-_C.LISTDATA.CLASS_NAMES = [
-    "Basketball", "BasketballDunk", "Biking", "CliffDiving", "CricketBowling", 
-    "Diving", "Fencing", "FloorGymnastics", "GolfSwing", "HorseRiding",
-    "IceDancing", "LongJump", "PoleVault", "RopeClimbing", "SalsaSpin",
-    "SkateBoarding", "Skiing", "Skijet", "SoccerJuggling", "Surfing",
-    "TennisSwing", "TrampolineJumping", "VolleyballSpiking", "WalkingWithDog"
-]
-
 # Add custom config with default values.
 custom_config.add_custom_config(_C)
-
 
 def _assert_and_infer_cfg(cfg):
     # BN assertions.

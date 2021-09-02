@@ -5,6 +5,7 @@ import logging
 import math
 import random
 import os
+import pdb
 
 import torch
 import numpy as np
@@ -18,14 +19,10 @@ logger = logging.getLogger(__name__)
 
 
 class Ava(torch.utils.data.Dataset):
-    def __init__(self, cfg, split, only_detection=False):
+    def __init__(self, cfg, split):
+        # Basic params
         self.cfg = cfg
         self._split = split
-        self._only_detection = only_detection
-        # if self._only_detection:
-        #     self._downsample = 4
-        # else:
-        #     self._downsample = 8
         self._downsample = 4
         self._sample_rate = cfg.DATA.SAMPLING_RATE
         self._video_length = cfg.DATA.NUM_FRAMES
@@ -36,8 +33,9 @@ class Ava(torch.utils.data.Dataset):
         self._data_std = cfg.DATA.STD
         self._use_bgr = cfg.AVA.BGR
         self.random_horizontal_flip = cfg.DATA.RANDOM_FLIP
-        # REMEMBER TO CHANGE THIS!
-        self.n_classes = 4
+        # CAUTION: Remember to change this
+        self.n_classes = 6
+        
         if self._split == "train":
             self._crop_size = cfg.DATA.TRAIN_CROP_SIZE
             self._jitter_min_scale = cfg.DATA.TRAIN_JITTER_SCALES[0]
@@ -61,10 +59,7 @@ class Ava(torch.utils.data.Dataset):
             cfg (CfgNode): config
         """
         # Loading frame paths.
-        (
-            self._image_paths,
-            self._video_idx_to_name,
-        ) = ava_helper.load_image_lists(cfg, is_train=(self._split == "train"))
+        self._image_paths, self._video_idx_to_name = ava_helper.load_image_lists(cfg, is_train=(self._split == "train"))
         
         #self.video_idx_to_name = os.listdir('/run/media/second_drive/datasets/ava/frames')
         #list(set(self._video_idx_to_name) - set(self.video_idx_to_name))

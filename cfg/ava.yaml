@@ -9,8 +9,8 @@ TRAIN:
   EVALUATE: False
   MODE: "train"  # `train`, `test` or `val`
   BEGIN_EPOCH: 1
-  END_EPOCH: 50
-  CLASS_RATIO_FILE: "cfg/dummy_dataset_ratio.json"
+  END_EPOCH: 10
+#  CLASS_RATIO_FILE: "cfg/dummy_dataset_ratio.json"
   USE_GROUNDTRUTH: False
   USE_SLOWFAST: False
 DATA:
@@ -26,10 +26,10 @@ SOLVER:
 AVA:
   BGR: False
   DETECTION_SCORE_THRESH: 0.5
-  TEST_PREDICT_BOX_LISTS: ["person_box_67091280_iou90/ava_detection_val_boxes_and_labels.csv"]
+#  TEST_PREDICT_BOX_LISTS: ["person_box_67091280_iou90/ava_detection_val_boxes_and_labels.csv"]
 MODEL:
 # NUM_CLASSES: 80
-  NUM_CLASSES: 4
+  NUM_CLASSES: 6
   BACKBONE_3D: resnext101
   BACKBONE_2D: darknet
 WEIGHTS:
@@ -44,7 +44,7 @@ BACKUP_DIR: "backup/ava"
 DEMO:
   ENABLE: False
   OUT_PATH: "ava_detections/videos"
-  LABEL_FILE_PATH: "/usr/home/sut/datasets/AVA/annotations/ava_classnames.json"
+#  LABEL_FILE_PATH: "/usr/home/sut/datasets/AVA/annotations/ava_classnames.json"
 RNG_SEED: 1
 
 

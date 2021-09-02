@@ -3,6 +3,8 @@
 
 import logging
 import os
+import pdb
+
 from collections import defaultdict
 from fvcore.common.file_io import PathManager
 from datasets.ava_eval_helper import read_exclusions
@@ -28,12 +30,8 @@ def load_image_lists(cfg, is_train):
     """
     # frame_list_dir is /data3/ava/frame_lists/
     # contains 'train.csv' and 'val.csv'
-    list_filenames = [
-        os.path.join(cfg.AVA.FRAME_LIST_DIR, filename)
-        for filename in (
-            cfg.AVA.TRAIN_LISTS if is_train else cfg.AVA.TEST_LISTS
-        )
-    ]
+    list_filenames = [os.path.join(cfg.AVA.FRAME_LIST_DIR, filename) for filename in (cfg.AVA.TRAIN_LISTS if is_train else cfg.AVA.TEST_LISTS)]
+    pdb.set_trace()
     image_paths = defaultdict(list)
     video_name_to_idx = {}
     video_idx_to_name = []
