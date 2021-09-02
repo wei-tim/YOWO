@@ -24,19 +24,15 @@ class ActionLabels(object):
         "No action ball": 7
     }
 
-def write_frames(frames, frame_ids, video_ids, csv_file):
-    '''
-    Given a txt file and a list of frame paths, writes the paths on the text
-    Args:
-        frames (list): List of frame paths
-        txt_file (file object): a text file object where the image paths will be saved
-    '''
-    with open(csv_file, 'w') as f:
-        writer = csv.writer(f, delimiter=' ', quotechar="'")
-        writer.writerow(['original_video_id', 'video_id', 'frame_id', 'path', 'labels'])
-        for id, frame in enumerate(frames):
-            video = frame.split('/')[0]
-            writer.writerow([video, video_ids[video], frame_ids[id], video + '/', frame, '""'])
+def write_frames(video_frame_ids, video_frame_boxes, csv_file):
+    with open(os.path.join(output_path, csv_file), 'w') as f:
+        writer = csv.writer(f, delimiter=',', quotechar="'")
+        for video_frame in video_frame_ids:
+            video = video_frame[0]
+            frame = video_frame[1]
+            id = video_frame[2]
+            for bb in video_frame_boxes[video][0][frame]:
+                writer.writerow([video, id, bb[0], bb[1], bb[2], bb[3], bb[4]])
 
     return None
 
@@ -105,13 +101,8 @@ if __name__=="__main__":
         per_json_boxes = read_json(json_file)
         print('Found {} boxes in it.'.format(len(per_json_boxes)))
         video_frame_boxes[json_file.split('.')[0]].append(per_json_boxes)
-        
-    for i, video_frame in enumerate(train_video_frame_ids):
-        video = video_frame[0]
-        frame = video_frame[1]
-        id = video_frame[2]
-        for bb in video_frame_boxes[video][0][frame]:
-            with open(os.path.join(output_path, 'ava_train_v2.2.csv'), 'w') as f:
-                writer = csv.writer(f, delimiter=',', quotechar="'")
-                writer.writerow([video, id, bb[0], bb[1], bb[2], bb[3], bb[4]])
+
+    write_frames(train_video_frame_ids, video_frame_boxes, 'ava_train_v2.2.csv')
+    write_frames(val_video_frame_ids, video_frame_boxes, 'ava_val_v2.2.csv')
+
 
