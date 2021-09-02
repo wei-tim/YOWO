@@ -16,10 +16,10 @@ def write_frames(frames, frame_ids, video_ids, csv_file):
     '''
     with open(csv_file, 'w') as f:
         writer = csv.writer(f, delimiter=' ', quotechar="'")
-        writer.writerow(['original_video_id', 'video_id', 'frame_id', 'video_path', 'frame_path', 'labels'])
+        writer.writerow(['original_video_id', 'video_id', 'frame_id', 'path', 'labels'])
         for id, frame in enumerate(frames):
             video = frame.split('/')[0]
-            writer.writerow([video, video_ids[video], frame_ids[id], video + '/', frame, '""'])
+            writer.writerow([video, video_ids[video], frame_ids[id], frame, '""'])
 
     return None
 

@@ -12,7 +12,23 @@ from datasets.ava_eval_helper import read_exclusions
 logger = logging.getLogger(__name__)
 #FPS = 20
 #AVA_VALID_FRAMES = range(902, 1799)
-AVA_VALID_FRAMES = range(1, 201)
+#AVA_VALID_FRAMES = range(0, 2998)
+
+class FramesPerVideo(object):
+    """
+    Mapping each video to the number of frames it consists of
+    """
+
+    AVA_VALID_FRAMES= {
+        "2021-02-01_15-31-07": 841,
+        "2021-02-02_15-37-33": 1317,
+        "2021-02-02_15-50-21": 2998,
+        "2021-02-05_16-19-15": 1498,
+        "2021-04-27_10-01-15": 1918,
+        "2021-04-27_10-19-32": 1242,
+        "2021-04-27_10-21-44": 1240,
+        "2021-04-27_11-39-19": 238
+    }
 
 def load_image_lists(cfg, is_train):
     """
@@ -28,10 +44,7 @@ def load_image_lists(cfg, is_train):
             this video.
         video_idx_to_name (list): a list which stores video names.
     """
-    # frame_list_dir is /data3/ava/frame_lists/
-    # contains 'train.csv' and 'val.csv'
     list_filenames = [os.path.join(cfg.AVA.FRAME_LIST_DIR, filename) for filename in (cfg.AVA.TRAIN_LISTS if is_train else cfg.AVA.TEST_LISTS)]
-    pdb.set_trace()
     image_paths = defaultdict(list)
     video_name_to_idx = {}
     video_idx_to_name = []
@@ -41,7 +54,7 @@ def load_image_lists(cfg, is_train):
             for line in f:
                 row = line.split()
                 # The format of each row should follow:
-                # original_vido_id video_id frame_id path labels.
+                # original_video_id video_id frame_id path labels.
                 assert len(row) == 5
                 video_name = row[0]
 
@@ -52,15 +65,11 @@ def load_image_lists(cfg, is_train):
 
                 data_key = video_name_to_idx[video_name]
 
-                image_paths[data_key].append(
-                    os.path.join(cfg.AVA.FRAME_DIR, row[3])
-                )
+                image_paths[data_key].append(os.path.join(cfg.AVA.FRAME_DIR, row[3]))
 
     image_paths = [image_paths[i] for i in range(len(image_paths))]
 
-    logger.info(
-        "Finished loading image paths from: %s" % ", ".join(list_filenames)
-    )
+    logger.info("Finished loading image paths from: %s" % ", ".join(list_filenames))
 
     return image_paths, video_idx_to_name
 
@@ -84,24 +93,11 @@ def load_boxes_and_labels(cfg, mode):
     else:
         gt_filename = cfg.AVA.TRAIN_GT_BOX_LISTS if mode == 'train' else cfg.AVA.VAL_GT_BOX_LISTS
     
-    # ann_filename = /home/bill/datasets/dummy_action/annotations/ava_train_v2.2.csv
     ann_filename = os.path.join(cfg.AVA.ANNOTATION_DIR, gt_filename[0])
     all_boxes = {}
     count = 0
     unique_box_count = 0
-    
-    # Commented out the exclusions
 
-    #if mode == 'train':
-    #    excluded_keys = read_exclusions(
-    #        os.path.join(cfg.AVA.ANNOTATION_DIR, cfg.AVA.TRAIN_EXCLUSION_FILE)
-    #    )
-    #else:
-    #    excluded_keys = read_exclusions(
-    #        os.path.join(cfg.AVA.ANNOTATION_DIR, cfg.AVA.EXCLUSION_FILE)
-    #    )
-    excluded_keys = []
-    
     detect_thresh = cfg.AVA.DETECTION_SCORE_THRESH
 
     with PathManager.open(ann_filename, 'r') as f:
@@ -116,26 +112,19 @@ def load_boxes_and_labels(cfg, mode):
                         continue
             ########
 
+            # CAUTION: The second one (frame_sec) is frame id not frame second!
             video_name, frame_sec = row[0], int(row[1])
-            key = "%s,%04d" % (video_name, frame_sec)
-            # if mode == 'train' and key in excluded_keys:
-            if key in excluded_keys:
-                print("Found {} to be excluded...".format(key))
-                continue
 
-            # Only select frame_sec % 4 = 0 samples for validation if not
-            # set FULL_TEST_ON_VAL (default False)
-            if mode == 'val' and not cfg.AVA.FULL_TEST_ON_VAL and frame_sec % 4 != 0:
-                continue
             # Box with [x1, y1, x2, y2] with a range of [0, 1] as float
             box_key = ",".join(row[2:6])
             box = list(map(float, row[2:6]))
+            
             # Action label
             label = -1 if row[6] == "" else int(row[6])
             
             if video_name not in all_boxes:
                 all_boxes[video_name] = {}
-                for sec in AVA_VALID_FRAMES:
+                for sec in range(0, FramesPerVideo.AVA_VALID_FRAMES[video_name] + 1):
                     all_boxes[video_name][sec] = {}
 
             if box_key not in all_boxes[video_name][frame_sec]:
@@ -149,13 +138,9 @@ def load_boxes_and_labels(cfg, mode):
     for video_name in all_boxes.keys():
         for frame_sec in all_boxes[video_name].keys():
             # Save in format of a list of [box_i, box_i_labels].
-            all_boxes[video_name][frame_sec] = list(
-                all_boxes[video_name][frame_sec].values()
-            )
+            all_boxes[video_name][frame_sec] = list(all_boxes[video_name][frame_sec].values())
 
-    logger.info(
-        "Finished loading annotations from: %s" % ", ".join([ann_filename])
-    )
+    logger.info("Finished loading annotations from: %s" % ", ".join([ann_filename]))
     logger.info("Number of unique boxes: %d" % unique_box_count)
     logger.info("Number of annotations: %d" % count)
 

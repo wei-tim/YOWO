@@ -61,24 +61,11 @@ class Ava(torch.utils.data.Dataset):
         # Loading frame paths.
         self._image_paths, self._video_idx_to_name = ava_helper.load_image_lists(cfg, is_train=(self._split == "train"))
         
-        #self.video_idx_to_name = os.listdir('/run/media/second_drive/datasets/ava/frames')
-        #list(set(self._video_idx_to_name) - set(self.video_idx_to_name))
-        #self.image_paths = []
-        #for image_path in self._image_paths:
-        #    if image_path[0].split('/')[-2] in self.video_idx_to_name:
-        #        self.image_paths.append(image_path)
-        
-        #self._image_paths = self.image_paths
-        #self._video_idx_to_name = self.video_idx_to_name
-
         # Loading annotations for boxes and labels.
         # boxes_and_labels: {'<video_name>': {<frame_num>: a list of [box_i, box_i_labels]} }
-        boxes_and_labels = ava_helper.load_boxes_and_labels(
-            cfg, mode=self._split
-        )
+        boxes_and_labels = ava_helper.load_boxes_and_labels(cfg, mode=self._split)
 
-        #import pdb
-        #pdb.set_trace()
+        pdb.set_trace()
         
         assert len(boxes_and_labels) == len(self._image_paths)
 
