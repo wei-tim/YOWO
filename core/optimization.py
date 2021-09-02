@@ -13,14 +13,13 @@ def train_ava(cfg, epoch, model, train_loader, loss_module, optimizer):
     l_loader = len(train_loader)
 
     model.train()
-    #import pdb
-    #pdb.set_trace()
+
     for batch_idx, batch in enumerate(train_loader):
         data = batch['clip'].cuda()
         target = {'cls': batch['cls'], 'boxes': batch['boxes']}
 
         output = model(data)
-        #pdb.set_trace()
+        
         loss = loss_module(output, target, epoch, batch_idx, l_loader)
 
         loss.backward()

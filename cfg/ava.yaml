@@ -10,7 +10,7 @@ TRAIN:
   MODE: "train"  # `train`, `test` or `val`
   BEGIN_EPOCH: 1
   END_EPOCH: 10
-#  CLASS_RATIO_FILE: "cfg/dummy_dataset_ratio.json"
+  CLASS_RATIO_FILE: "cfg/avalike_mbarv1_categories_ratio.json"
   USE_GROUNDTRUTH: False
   USE_SLOWFAST: False
 DATA:

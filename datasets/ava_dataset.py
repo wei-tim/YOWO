@@ -64,41 +64,30 @@ class Ava(torch.utils.data.Dataset):
         # Loading annotations for boxes and labels.
         # boxes_and_labels: {'<video_name>': {<frame_num>: a list of [box_i, box_i_labels]} }
         boxes_and_labels = ava_helper.load_boxes_and_labels(cfg, mode=self._split)
-
-        pdb.set_trace()
         
         assert len(boxes_and_labels) == len(self._image_paths)
 
         # boxes_and_labels: a list of {<frame_num>: a list of [box_i, box_i_labels]}
-        boxes_and_labels = [
-            boxes_and_labels[self._video_idx_to_name[i]]
-            for i in range(len(self._image_paths))
-        ]
+        boxes_and_labels = [boxes_and_labels[self._video_idx_to_name[i]]for i in range(len(self._image_paths))]
 
         # Get indices of keyframes and corresponding boxes and labels.
         # _keyframe_indices: [video_idx, sec_idx, sec, frame_index]
         # _keyframe_boxes_and_labels: list[list[list]], outer is video_idx, middle is sec_idx,
         # inner is a list of [box_i, box_i_labels]
-        (
-            self._keyframe_indices,
-            self._keyframe_boxes_and_labels,
-        ) = ava_helper.get_keyframe_data(boxes_and_labels)
+        self._keyframe_indices, self._keyframe_boxes_and_labels = ava_helper.get_keyframe_data(boxes_and_labels)
 
         # Calculate the number of used boxes.
-        self._num_boxes_used = ava_helper.get_num_boxes_used(
-            self._keyframe_indices, self._keyframe_boxes_and_labels
-        )
+        self._num_boxes_used = ava_helper.get_num_boxes_used(self._keyframe_indices, self._keyframe_boxes_and_labels)
 
-        self._max_objs = ava_helper.get_max_objs(
-            self._keyframe_indices, self._keyframe_boxes_and_labels
-        )
+        self._max_objs = ava_helper.get_max_objs(self._keyframe_indices, self._keyframe_boxes_and_labels)
+
+        pdb.set_trace()
+
+        
         self.print_summary()
-
-        #import pdb
-        #pdb.set_trace()
         
     def print_summary(self):
-        logger.info("=== AVA dataset summary ===")
+        logger.info("=== MBARv1 dataset summary ===")
         logger.info("Split: {}".format(self._split))
         logger.info("Number of videos: {}".format(len(self._image_paths)))
         total_frames = sum(
@@ -162,9 +151,8 @@ class Ava(torch.utils.data.Dataset):
             imgs = [cv2_transform.resize(self._crop_size, img) for img in imgs]
 
             if self.random_horizontal_flip:
-                imgs, boxes = cv2_transform.horizontal_flip_list(
-                    0.5, imgs, order="HWC", boxes=boxes
-                )
+                imgs, boxes = cv2_transform.horizontal_flip_list(0.5, imgs, order="HWC", boxes=boxes)
+        
         elif self._split == "val":  # need modified
             # Short side to test_scale. Non-local and STRG uses 256.
             # imgs = [cv2_transform.scale(self._crop_size, img) for img in imgs]
@@ -180,9 +168,8 @@ class Ava(torch.utils.data.Dataset):
             boxes = cv2_transform.resize_boxes(self._crop_size, boxes, height, width)
 
             if self._test_force_flip:
-                imgs, boxes = cv2_transform.horizontal_flip_list(
-                    1, imgs, order="HWC", boxes=boxes
-                )
+                imgs, boxes = cv2_transform.horizontal_flip_list(1, imgs, order="HWC", boxes=boxes)
+
         elif self._split == "test":  # need modified
             # Short side to test_scale. Non-local and STRG uses 256.
             # imgs = [cv2_transform.scale(self._jitter_min_scale, img) for img in imgs]
@@ -206,13 +193,11 @@ class Ava(torch.utils.data.Dataset):
             # imgs, boxes, pad_w, pad_h = cv2_transform.cdet_preprocess(imgs, boxes, mean=mean)
 
             if self._test_force_flip:
-                imgs, boxes = cv2_transform.horizontal_flip_list(
-                    1, imgs, order="HWC", boxes=boxes
-                )
+                imgs, boxes = cv2_transform.horizontal_flip_list(1, imgs, order="HWC", boxes=boxes)
+
         else:
-            raise NotImplementedError(
-                "Unsupported split mode {}".format(self._split)
-            )
+            raise NotImplementedError("Unsupported split mode {}".format(self._split))
+            
         # Convert image to CHW keeping BGR order.
         imgs = [cv2_transform.HWC2CHW(img) for img in imgs]
 
@@ -272,7 +257,6 @@ class Ava(torch.utils.data.Dataset):
         boxes = cv2_transform.transform_cxcywh(boxes, imgs[0].shape[1], imgs[0].shape[2])
         assert bx_count == boxes.shape[0]
 
-        #pdb.set_trace()
         return imgs, boxes
 
     def __getitem__(self, idx):
@@ -291,6 +275,7 @@ class Ava(torch.utils.data.Dataset):
         """
         # Get the frame idxs for current clip. We can use it as center or latest
 
+        pdb.set_trace()
         video_idx, sec_idx, sec, frame_idx = self._keyframe_indices[idx]
         clip_label_list = self._keyframe_boxes_and_labels[video_idx][sec_idx]
 
@@ -303,8 +288,7 @@ class Ava(torch.utils.data.Dataset):
             sample_rate,
             num_frames=len(self._image_paths[video_idx]),
         )
-        #import pdb
-        #pdb.set_trace()
+
         image_paths = [self._image_paths[video_idx][frame - 1] for frame in seq]
         imgs = retry_load_images(image_paths, backend=self.cfg.AVA.IMG_PROC_BACKEND)
 

@@ -19,7 +19,7 @@ class FramesPerVideo(object):
     Mapping each video to the number of frames it consists of
     """
 
-    AVA_VALID_FRAMES= {
+    AVA_VALID_TRAIN_FRAMES= {
         "2021-02-01_15-31-07": 841,
         "2021-02-02_15-37-33": 1317,
         "2021-02-02_15-50-21": 2998,
@@ -28,6 +28,12 @@ class FramesPerVideo(object):
         "2021-04-27_10-19-32": 1242,
         "2021-04-27_10-21-44": 1240,
         "2021-04-27_11-39-19": 238
+    }
+
+    AVA_VALID_VAL_FRAMES= {
+        "2021-04-27_11-39-19": range(239, 261),
+        "2021-05-07_09-43-39": range(0, 699),
+        "2021-05-07_10-00-16": range(0, 535)
     }
 
 def load_image_lists(cfg, is_train):
@@ -124,8 +130,12 @@ def load_boxes_and_labels(cfg, mode):
             
             if video_name not in all_boxes:
                 all_boxes[video_name] = {}
-                for sec in range(0, FramesPerVideo.AVA_VALID_FRAMES[video_name] + 1):
-                    all_boxes[video_name][sec] = {}
+                if mode == 'train':
+                    for sec in range(0, FramesPerVideo.AVA_VALID_TRAIN_FRAMES[video_name] + 1):
+                        all_boxes[video_name][sec] = {}
+                elif mode == 'val':
+                    for sec in FramesPerVideo.AVA_VALID_VAL_FRAMES[video_name]:
+                        all_boxes[video_name][sec] = {}
 
             if box_key not in all_boxes[video_name][frame_sec]:
                 all_boxes[video_name][frame_sec][box_key] = [box, []]
@@ -179,16 +189,12 @@ def get_keyframe_data(boxes_and_labels):
         sec_idx = 0
         keyframe_boxes_and_labels.append([])
         for sec in boxes_and_labels[video_idx].keys():
-            if sec not in AVA_VALID_FRAMES:
-                continue
+            #if sec not in AVA_VALID_FRAMES:
+            #    continue
 
             if len(boxes_and_labels[video_idx][sec]) > 0:
-                keyframe_indices.append(
-                    (video_idx, sec_idx, sec, sec_to_frame(sec))
-                )
-                keyframe_boxes_and_labels[video_idx].append(
-                    boxes_and_labels[video_idx][sec]
-                )
+                keyframe_indices.append((video_idx, sec_idx, sec, sec_to_frame(sec)))
+                keyframe_boxes_and_labels[video_idx].append(boxes_and_labels[video_idx][sec])
                 sec_idx += 1
                 count += 1
     logger.info("%d keyframes used." % count)
