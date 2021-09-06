@@ -12,14 +12,14 @@ class ActionLabels(object):
     """
 
     ACTION_CLASSES_TO_IDS= {
-        "Passing": 0,
-        "Dribbling": 1,
-        "Shooting": 2,
-        "Ball possession": 3,
-        "No action": 4,
-        "Shoot in": 5,
-        "Shoot out": 6,
-        "No action ball": 7
+        "Passing": 1,
+        "Dribbling": 2,
+        "Shooting": 3,
+        "Ball possession": 4,
+        "No action": 5,
+        "Shoot in": 6,
+        "Shoot out": 7,
+        "No action ball": 8
     }
 
 def read_csv(csv_file):
@@ -33,7 +33,7 @@ def read_csv(csv_file):
         csv_reader = csv.reader(f, delimiter=' ')
         for i, row in enumerate(csv_reader):
             if i > 0:
-                video_frame_ids.append([row[0], row[4].split('/')[1], row[2]])
+                video_frame_ids.append([row[0], row[3].split('/')[1], row[2]])
 
     return video_frame_ids
 

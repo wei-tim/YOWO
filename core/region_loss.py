@@ -295,8 +295,8 @@ class binary_FocalLoss(nn.Module):
         self._init_class_weight()
 
     def _init_class_weight(self):
-        self.register_buffer('class_weight', torch.zeros(4))
-        for i in range(1, 4):
+        self.register_buffer('class_weight', torch.zeros(self.class_num))
+        for i in range(1, self.class_num):
             self.class_weight[i - 1] = 1 - self.class_ratio[str(i)]
             # n = self.class_ratio[str(i)]
             # self.class_weight[i - 1] = (1 - self.beta) / (1 - self.beta ** n)

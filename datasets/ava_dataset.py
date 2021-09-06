@@ -34,7 +34,7 @@ class Ava(torch.utils.data.Dataset):
         self._use_bgr = cfg.AVA.BGR
         self.random_horizontal_flip = cfg.DATA.RANDOM_FLIP
         # CAUTION: Remember to change this
-        self.n_classes = 6
+        self.n_classes = cfg.MODEL.NUM_CLASSES
         
         if self._split == "train":
             self._crop_size = cfg.DATA.TRAIN_CROP_SIZE
@@ -80,9 +80,6 @@ class Ava(torch.utils.data.Dataset):
         self._num_boxes_used = ava_helper.get_num_boxes_used(self._keyframe_indices, self._keyframe_boxes_and_labels)
 
         self._max_objs = ava_helper.get_max_objs(self._keyframe_indices, self._keyframe_boxes_and_labels)
-
-        pdb.set_trace()
-
         
         self.print_summary()
         
@@ -275,7 +272,6 @@ class Ava(torch.utils.data.Dataset):
         """
         # Get the frame idxs for current clip. We can use it as center or latest
 
-        pdb.set_trace()
         video_idx, sec_idx, sec, frame_idx = self._keyframe_indices[idx]
         clip_label_list = self._keyframe_boxes_and_labels[video_idx][sec_idx]
 

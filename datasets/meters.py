@@ -105,7 +105,7 @@ class AVAMeter(object):
             sec = int(np.round(pred[-1][1]))
             box = pred[0]
             scores = pred[1]
-            assert len(scores) == 80
+            assert len(scores) == self.cfg.MODEL.NUM_CLASSES
             # try:
             #     assert len(scores) == len(labels)
             # except TypeError:
