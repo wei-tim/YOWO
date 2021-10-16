@@ -5,6 +5,7 @@ that we have build our code on top.
 
 import numpy as np
 import torch
+import pdb
 import torch.nn as nn
 from torch.autograd import Variable
 
@@ -27,10 +28,15 @@ class CAM_Module(nn.Module):
                 attention: B X C X C
         """
         m_batchsize, C, height, width = x.size()
+        # Flattening spatial dimensions
         proj_query = x.view(m_batchsize, C, -1)
+        # Applying permutations
         proj_key = x.view(m_batchsize, C, -1).permute(0, 2, 1)
+        # Performing batch matrix-matrix product
         energy = torch.bmm(proj_query, proj_key)
+        # Finds the max energy and then subtract each other energy from it
         energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
+        # Softmax over new energy 
         attention = self.softmax(energy_new)
         proj_value = x.view(m_batchsize, C, -1)
 
@@ -71,8 +77,10 @@ class CFAMBlock(nn.Module):
 
         return output
 
-
+'''
+# This was maybe used for debugging?!
 if __name__ == "__main__":
+    # Should I change this?
     data = torch.randn(18, 2473, 7, 7).cuda()
     in_channels = data.size()[1]
     out_channels = 145 
@@ -80,6 +88,7 @@ if __name__ == "__main__":
     print(model)
     output = model(data)
     print(output.size())
+'''
     
     
 

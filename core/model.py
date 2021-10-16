@@ -1,12 +1,26 @@
 import torch
 import torch.nn as nn
 import numpy as np
+import pdb
 import torch.nn.functional as F
 from torch.autograd import Variable
 
 from core.cfam import CFAMBlock
 from backbones_2d import darknet
 from backbones_3d import mobilenet, shufflenet, mobilenetv2, shufflenetv2, resnext, resnet
+
+'''
+from ptyolo.models.experimental import attempt_load
+from ptyolo.utils.datasets import LoadStreams, LoadImages
+from ptyolo.utils.general import (
+    check_img_size, non_max_suppression, apply_classifier, scale_coords, xyxy2xywh, plot_one_box, strip_optimizer)
+from ptyolo.utils.torch_utils import select_device, load_classifier, time_synchronized
+
+from ptyolo.models.models import *
+from ptyolo.models.experimental import *
+from ptyolo.utils.datasets import *
+from ptyolo.utils.general import *
+'''
 
 """
 YOWO model used in spatialtemporal action localization
@@ -22,10 +36,11 @@ class YOWO(nn.Module):
         ##### 2D Backbone #####
         if cfg.MODEL.BACKBONE_2D == "darknet":
             self.backbone_2d = darknet.Darknet("cfg/yolo.cfg")
+            #self.backbone_2d = darknet.Darknet("cfg/yolo-pacsp.cfg")
             num_ch_2d = 425 # Number of output channels for backbone_2d
+            #num_ch_2d = 255
         else:
-            raise ValueError("Wrong backbone_2d model is requested. Please select\
-                              it from [darknet]")
+            raise ValueError("Wrong backbone_2d model is requested. Please select it from [darknet]")
         if cfg.WEIGHTS.BACKBONE_2D:# load pretrained weights on COCO dataset
             self.backbone_2d.load_weights(cfg.WEIGHTS.BACKBONE_2D) 
 
@@ -76,11 +91,14 @@ class YOWO(nn.Module):
 
 
     def forward(self, input):
+        # The whole clip (all the frames) is given as input to the 3D backbone
         x_3d = input # Input clip
-        x_2d = input[:, :, -1, :, :] # Last frame of the clip that is read
+        # Only the last frame is given as input to the 2D backbone
+        x_2d = input[:, :, -1, :, :]
 
         x_2d = self.backbone_2d(x_2d)
         x_3d = self.backbone_3d(x_3d)
+
         x_3d = torch.squeeze(x_3d, dim=2)
 
         x = torch.cat((x_3d, x_2d), dim=1)

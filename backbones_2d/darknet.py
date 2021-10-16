@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from core.region_loss import RegionLoss
 from cfg.yolo_cfg import *
 #from layers.batchnorm.bn import BN2d
 

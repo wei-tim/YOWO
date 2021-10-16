@@ -13,36 +13,32 @@ import torch.optim as optim
 import torch.backends.cudnn as cudnn
 from torchvision import datasets, transforms
 
-from datasets import list_dataset
 from datasets.ava_dataset import Ava 
 from core.optimization import *
 from cfg import parser
 from core.utils import *
-from core.region_loss import RegionLoss, RegionLoss_Ava
+from core.region_loss import RegionLoss_Ava
 from core.model import YOWO, get_fine_tuning_parameters
 
 
-####### Load configuration arguments
-# ---------------------------------------------------------------
+# Load configuration arguments
+# Here we use cfg/parser.py which uses defaults.py
 args  = parser.parse_args()
 cfg   = parser.load_config(args)
 
-
-####### Check backup directory, create if necessary
-# ---------------------------------------------------------------
+# Check backup directory, create if necessary
 if not os.path.exists(cfg.BACKUP_DIR):
     os.makedirs(cfg.BACKUP_DIR)
 
-
-####### Create model
-# ---------------------------------------------------------------
+# Create model
+# Here we use core/model.py
 model = YOWO(cfg)
 model = model.cuda()
 model = nn.DataParallel(model, device_ids=None) # in multi-gpu case
-# print(model)
 pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 logging('Total number of trainable parameters: {}'.format(pytorch_total_params))
 
+# Set seed, use cuda
 seed = int(time.time())
 torch.manual_seed(seed)
 use_cuda = True
@@ -50,17 +46,13 @@ if use_cuda:
     os.environ['CUDA_VISIBLE_DEVICES'] = '0' # TODO: add to config e.g. 0,1,2,3
     torch.cuda.manual_seed(seed)
 
-
-####### Create optimizer
-# ---------------------------------------------------------------
+# Define optimizer
 parameters = get_fine_tuning_parameters(model, cfg)
 optimizer = torch.optim.Adam(parameters, lr=cfg.TRAIN.LEARNING_RATE, weight_decay=cfg.SOLVER.WEIGHT_DECAY)
-best_score   = 0 # initialize best score
 # optimizer = optim.SGD(parameters, lr=cfg.TRAIN.LEARNING_RATE/batch_size, momentum=cfg.SOLVER.MOMENTUM, dampening=0, weight_decay=cfg.SOLVER.WEIGHT_DECAY)
+best_score   = 0 # initialize best score
 
-
-####### Load resume path if necessary
-# ---------------------------------------------------------------
+# Load resume path if necessary
 if cfg.TRAIN.RESUME_PATH:
     print("===================================================================")
     print('loading checkpoint {}'.format(cfg.TRAIN.RESUME_PATH))
@@ -76,36 +68,44 @@ if cfg.TRAIN.RESUME_PATH:
     print("===================================================================")
     del checkpoint
 
-
-####### Create backup directory if necessary
-# ---------------------------------------------------------------
+# Create backup directory if necessary
 if not os.path.exists(cfg.BACKUP_DIR):
     os.mkdir(cfg.BACKUP_DIR)
 
-
-####### Data loader, training scheme and loss function are different for AVA and UCF24/JHMDB21 datasets
-# ---------------------------------------------------------------
+# Data loader, training scheme and loss function for AVA
 dataset = cfg.TRAIN.DATASET
-assert dataset == 'ucf24' or dataset == 'jhmdb21' or dataset == 'ava', 'invalid dataset'
 
-if dataset == 'ava':
-    train_dataset = Ava(cfg, split='train')
-    test_dataset  = Ava(cfg, split='val')
+# Make sure the correct dataset is chosen
+assert dataset == 'ava', 'invalid dataset'
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=True, 
-                                               num_workers=cfg.DATA_LOADER.NUM_WORKERS, drop_last=True, pin_memory=True)
-    
-    test_loader  = torch.utils.data.DataLoader(test_dataset, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=False,
-                                               num_workers=cfg.DATA_LOADER.NUM_WORKERS, drop_last=False, pin_memory=True)
+# Set dataset
+# Here we use datasets/ava_dataset which uses ava_helper, cv2_transform, dataset_utils
+train_dataset = Ava(cfg, split='train')
+test_dataset  = Ava(cfg, split='val')
 
-    loss_module   = RegionLoss_Ava(cfg).cuda()
+# For debugging try train_dataset[0]
+#pdb.set_trace()
 
-    train = getattr(sys.modules[__name__], 'train_ava')
-    test  = getattr(sys.modules[__name__], 'test_ava')
+# Set trainloaders
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=True, 
+                                            num_workers=cfg.DATA_LOADER.NUM_WORKERS, drop_last=True, pin_memory=True)
 
+test_loader  = torch.utils.data.DataLoader(test_dataset, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=False,
+                                            num_workers=cfg.DATA_LOADER.NUM_WORKERS, drop_last=False, pin_memory=True)
 
-####### Training and Testing Schedule
-# ---------------------------------------------------------------
+# Set loss function
+# Here we use core/region_loss.py which uses utils
+loss_module   = RegionLoss_Ava(cfg).cuda()
+
+# Import train and test functions
+# Import using getattr (no reason for this...)
+train = getattr(sys.modules[__name__], 'train_ava')
+test  = getattr(sys.modules[__name__], 'test_ava')
+# This is the same as
+from core.optimization import train_ava as train
+from core.optimization import test_ava as test
+
+# Training and Testing Schedule
 if cfg.TRAIN.EVALUATE:
     logging('evaluating ...')
     test(cfg, 0, model, test_loader)

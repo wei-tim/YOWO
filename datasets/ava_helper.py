@@ -18,7 +18,7 @@ class FramesPerVideo(object):
     """
     Mapping each video to the number of frames it consists of
     """
-
+    
     AVA_VALID_TRAIN_FRAMES= {
         "2021-02-01_15-31-07": 841,
         "2021-02-02_15-37-33": 1317,
@@ -29,12 +29,30 @@ class FramesPerVideo(object):
         "2021-04-27_10-21-44": 1240,
         "2021-04-27_11-39-19": 238
     }
-
+    '''
+    AVA_VALID_TRAIN_FRAMES= {
+        "2021-02-01_15-31-07": 420,
+        "2021-02-02_15-37-33": 658,
+        "2021-02-02_15-50-21": 1499,
+        "2021-02-05_16-19-15": 749,
+        "2021-04-27_10-01-15": 959,
+        "2021-04-27_10-19-32": 621,
+        "2021-04-27_10-21-44": 620,
+        "2021-04-27_11-39-19": 120
+    }
+    '''
     AVA_VALID_VAL_FRAMES= {
         "2021-04-27_11-39-19": range(239, 261),
         "2021-05-07_09-43-39": range(0, 699),
         "2021-05-07_10-00-16": range(0, 535)
     }
+    '''
+    AVA_VALID_VAL_FRAMES= {
+        "2021-04-27_11-39-19": range(121, 131),
+        "2021-05-07_09-43-39": range(0, 350),
+        "2021-05-07_10-00-16": range(0, 268)
+    }
+    '''
 
 def load_image_lists(cfg, is_train):
     """
@@ -98,7 +116,7 @@ def load_boxes_and_labels(cfg, mode):
         gt_filename = cfg.AVA.TRAIN_GT_BOX_LISTS if mode == 'train' else cfg.AVA.TEST_PREDICT_BOX_LISTS
     else:
         gt_filename = cfg.AVA.TRAIN_GT_BOX_LISTS if mode == 'train' else cfg.AVA.VAL_GT_BOX_LISTS
-    
+
     ann_filename = os.path.join(cfg.AVA.ANNOTATION_DIR, gt_filename[0])
     all_boxes = {}
     count = 0
@@ -153,10 +171,13 @@ def load_boxes_and_labels(cfg, mode):
     logger.info("Finished loading annotations from: %s" % ", ".join([ann_filename]))
     logger.info("Number of unique boxes: %d" % unique_box_count)
     logger.info("Number of annotations: %d" % count)
-
-    # all boxes -> 
-    # {'side_near': {1: [[[0.142361, 0.552726, 0.0478395, 0.172325], [3]], [[0.342786, 0.312243, 0.0289352, 0.106996], [0]], [[0.47936, 0.258745, 0.0227623, 0.0771605], [2]]]}
     
+    # all_boxes['2021-02-01_15-31-07'][0]
+    # all_boxes is a dictionary having all the videos and each video is also a dictionary having all its frames and in each frame there
+    # is a list of 2 lists: one list has the box and the other the action label of that box
+    # [[[0.0, 0.29372427983539096, 0.04089506172839506, 0.12294238683127572], [2]], [[0.08199074074074074, 0.2550205761316872, 0.0032137345679012345, 0.011162551440329217], [8]],...]
+    
+    # This means that all_boxes is truly all boxes with their corresponding labels
     return all_boxes
 
 
@@ -223,11 +244,12 @@ def get_num_boxes_used(keyframe_indices, keyframe_boxes_and_labels):
 
 
 def get_max_objs(keyframe_indices, keyframe_boxes_and_labels):
-    # max_objs = 0
-    # for video_idx, sec_idx, _, _ in keyframe_indices:
-    #     num_boxes = len(keyframe_boxes_and_labels[video_idx][sec_idx])
-    #     if num_boxes > max_objs:
-    #         max_objs = num_boxes
+    max_objs = 0
+    for video_idx, sec_idx, _, _ in keyframe_indices:
+        num_boxes = len(keyframe_boxes_and_labels[video_idx][sec_idx])
+        if num_boxes > max_objs:
+            max_objs = num_boxes
 
-    # return max_objs
-    return 50 #### MODIFICATION FOR NOW! TODO: FIX LATER!
+    return max_objs + 4
+    
+    #return 21 #### MODIFICATION FOR NOW! TODO: FIX LATER!

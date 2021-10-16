@@ -1,34 +1,37 @@
 TRAIN:
-# RESUME_PATH: "/home/bill/code/yowo/pretrained_models/YOWO_AVA_pretrained/yowo_ava_32f_s1_best_ap_01905.pth"
-# RESUME_PATH: "/home/bill/code/yowo/backup/ava/yowo_ava_16f_checkpoint.pth"
-  RESUME_PATH: ""
+#  RESUME_PATH: "/home/bill/code/yowo/pretrained_models/YOWO_AVA_pretrained/yowo_ava_32f_s1_best_ap_01905.pth"
+#  RESUME_PATH: "/home/bill/code/yowo/finished/v1_yowo_weighting_25_epochs/yowo_ava_8f_checkpoint.pth"
+#  RESUME_PATH: "/home/bill/code/yowo/finished/v1_yowo_50_epochs/yowo_ava_8f_checkpoint.pth"
+#  RESUME_PATH: ""
+  RESUME_PATH: "/home/bill/code/yowo/finished/v0_yowo_correct_weighting_high_resolution_50_epochs/ava/yowo_ava_8f_checkpoint.pth"
   DATASET: ava  # `ava`, `ucf24` or `jhmdb21`
-  BATCH_SIZE: 3
-  TOTAL_BATCH_SIZE: 64
+  BATCH_SIZE: 1
+  TOTAL_BATCH_SIZE: 128
   LEARNING_RATE: 1e-4
   EVALUATE: False
-  MODE: "train"  # `train`, `test` or `val`
-  BEGIN_EPOCH: 1
-  END_EPOCH: 10
+  MODE: "test"  # `train`, `test` or `val`
+  BEGIN_EPOCH: 15
+  END_EPOCH: 25
   CLASS_RATIO_FILE: "cfg/avalike_mbarv1_categories_ratio.json"
   USE_GROUNDTRUTH: False
   USE_SLOWFAST: False
 DATA:
   NUM_FRAMES: 8
   SAMPLING_RATE: 1
-  TRAIN_JITTER_SCALES: [256, 320]
-  TRAIN_CROP_SIZE: 224
-  TEST_CROP_SIZE: 224
+  #TRAIN_JITTER_SCALES: [256, 320]
+  TRAIN_JITTER_SCALES: [803, 1005]
+  #TRAIN_CROP_SIZE: 224
+  TRAIN_CROP_SIZE: 704
+  TEST_CROP_SIZE: 704
 SOLVER:
   STEPS: [3, 4, 5, 6]
   LR_DECAY_RATE: 0.5
   ANCHORS: [0.71626, 2.13583, 1.28967, 4.15014, 2.12714, 5.09344, 3.27212, 5.87423, 5.16303, 6.33821]
 AVA:
   BGR: False
-  DETECTION_SCORE_THRESH: 0.5
+  DETECTION_SCORE_THRESH: 0.3
 #  TEST_PREDICT_BOX_LISTS: ["person_box_67091280_iou90/ava_detection_val_boxes_and_labels.csv"]
 MODEL:
-# NUM_CLASSES: 80
   NUM_CLASSES: 8
   BACKBONE_3D: resnext101
   BACKBONE_2D: darknet
@@ -41,6 +44,9 @@ DATA_LOADER:
   NUM_WORKERS: 8
   PIN_MEMORY: True
 BACKUP_DIR: "backup/ava"
+TEST:
+  INPUT_VIDEO: "/home/bill/datasets/avalike_mbarv1/videos/2021-02-01_15-31-07.avi"
+  OUTPUT_PATH: "/home/bill/code/yowo/inference/random_inference"
 DEMO:
   ENABLE: False
   OUT_PATH: "ava_detections/videos"

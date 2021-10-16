@@ -4,8 +4,6 @@
 """Configs."""
 from fvcore.common.config import CfgNode
 
-from . import custom_config
-
 # -----------------------------------------------------------------------------
 # Config definition
 # -----------------------------------------------------------------------------
@@ -132,6 +130,11 @@ _C.TEST.NUM_SPATIAL_CROPS = 3
 # Checkpoint types include `caffe2` or `pytorch`.
 _C.TEST.CHECKPOINT_TYPE = "pytorch"
 
+# Test video
+_C.TEST.INPUT_VIDEO = "/home/bill/datasets/avalike_mbarv1/videos/2021-02-01_15-31-07.avi"
+
+# Path to save infereneced frames of test video
+_C.TEST.OUTPUT_PATH = "inference_avalike_mbarv1"
 
 # -----------------------------------------------------------------------------
 # ResNet options
@@ -268,7 +271,7 @@ _C.DATA.PATH_TO_DATA_DIR = ""
 _C.DATA.PATH_PREFIX = ""
 
 # The spatial crop size of the input clip.
-_C.DATA.CROP_SIZE = 224
+_C.DATA.CROP_SIZE = 640
 
 # The number of frames of the input clip.
 _C.DATA.NUM_FRAMES = 8
@@ -278,8 +281,8 @@ _C.DATA.SAMPLING_RATE = 8
 
 # The mean value of the video raw pixels across the R G B channels.
 _C.DATA.MEAN = [0.45, 0.45, 0.45]
-# List of input frame channel dimensions.
 
+# List of input frame channel dimensions.
 _C.DATA.INPUT_CHANNEL_NUM = [3, 3]
 
 # The std value of the video raw pixels across the R G B channels.
@@ -289,14 +292,14 @@ _C.DATA.STD = [0.225, 0.225, 0.225]
 _C.DATA.TRAIN_JITTER_SCALES = [256, 320]
 
 # The spatial crop size for training.
-_C.DATA.TRAIN_CROP_SIZE = 224
+_C.DATA.TRAIN_CROP_SIZE = 640
 
 # The spatial crop size for testing.
-_C.DATA.TEST_CROP_SIZE = 256  # original is 256
+_C.DATA.TEST_CROP_SIZE = 640  # original is 256
 
 # Input videos may has different fps, convert it to the target video fps before
 # frame sampling.
-_C.DATA.TARGET_FPS = 20
+_C.DATA.TARGET_FPS = 10
 
 # Decoding backend, options include `pyav` or `torchvision`
 _C.DATA.DECODING_BACKEND = "pyav"
@@ -307,10 +310,10 @@ _C.DATA.DECODING_BACKEND = "pyav"
 _C.DATA.INV_UNIFORM_SAMPLE = False
 
 # If True, perform random horizontal flip on the video frames during training.
-_C.DATA.RANDOM_FLIP = True
+_C.DATA.RANDOM_FLIP = False
 
 # If True, calculdate the map as metric.
-_C.DATA.MULTI_LABEL = False
+_C.DATA.MULTI_LABEL = True
 
 # Method to perform the ensemble, options include "sum" and "max".
 _C.DATA.ENSEMBLE_METHOD = "sum"
@@ -628,6 +631,9 @@ _C.AVA.FULL_TEST_ON_VAL = False
 # The name of the file to the ava label map.
 _C.AVA.LABEL_MAP_FILE = "ava_action_list_v2.2_for_activitynet_2019.pbtxt"
 
+# The name of the file to the ava label map used for inference/testing.
+_C.AVA.TEST_LABEL_MAP_FILE = "ava_action_list_v2.2.pbtxt"
+
 # The name of the file to the ava exclusion.
 _C.AVA.EXCLUSION_FILE = "ava_val_excluded_timestamps_v2.2.csv"
 
@@ -640,8 +646,6 @@ _C.AVA.GROUNDTRUTH_FILE = "ava_val_v2.2.csv"
 # Backend to process image, includes `pytorch` and `cv2`.
 _C.AVA.IMG_PROC_BACKEND = "cv2"
 
-# Add custom config with default values.
-custom_config.add_custom_config(_C)
 
 def _assert_and_infer_cfg(cfg):
     # BN assertions.

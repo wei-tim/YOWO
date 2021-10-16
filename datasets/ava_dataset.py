@@ -51,6 +51,7 @@ class Ava(torch.utils.data.Dataset):
 
         self._load_data(cfg)
 
+    # _load_data is working fine and returns everythin (images and boxes and labels)
     def _load_data(self, cfg):
         """
         Load frame paths and annotations from files
@@ -64,7 +65,7 @@ class Ava(torch.utils.data.Dataset):
         # Loading annotations for boxes and labels.
         # boxes_and_labels: {'<video_name>': {<frame_num>: a list of [box_i, box_i_labels]} }
         boxes_and_labels = ava_helper.load_boxes_and_labels(cfg, mode=self._split)
-        
+
         assert len(boxes_and_labels) == len(self._image_paths)
 
         # boxes_and_labels: a list of {<frame_num>: a list of [box_i, box_i_labels]}
@@ -80,16 +81,14 @@ class Ava(torch.utils.data.Dataset):
         self._num_boxes_used = ava_helper.get_num_boxes_used(self._keyframe_indices, self._keyframe_boxes_and_labels)
 
         self._max_objs = ava_helper.get_max_objs(self._keyframe_indices, self._keyframe_boxes_and_labels)
-        
+
         self.print_summary()
         
     def print_summary(self):
         logger.info("=== MBARv1 dataset summary ===")
         logger.info("Split: {}".format(self._split))
         logger.info("Number of videos: {}".format(len(self._image_paths)))
-        total_frames = sum(
-            len(video_img_paths) for video_img_paths in self._image_paths
-        )
+        total_frames = sum(len(video_img_paths) for video_img_paths in self._image_paths)
         logger.info("Number of frames: {}".format(total_frames))
         logger.info("Number of key frames: {}".format(len(self)))
         logger.info("Number of boxes: {}.".format(self._num_boxes_used))
@@ -110,9 +109,11 @@ class Ava(torch.utils.data.Dataset):
             imgs (tensor): list of preprocessed images.
             boxes (ndarray): preprocessed boxes.
         """
-
+        # Here we still have the original image shape (e.g. 1944, 2592)
+        # We also have boxes values in [0,1]
         height, width, _ = imgs[0].shape
 
+        # Here we multiply boxes with shapes
         boxes[:, [0, 2]] *= width
         boxes[:, [1, 3]] *= height
         boxes = cv2_transform.clip_boxes_to_image(boxes, height, width)
@@ -123,74 +124,26 @@ class Ava(torch.utils.data.Dataset):
 
         # The image now is in HWC, BGR format.
         if self._split == "train":  # "train"
-            ''' slow-fast augmentation'''
-            # imgs, boxes = cv2_transform.random_short_side_scale_jitter_list(
-            #     imgs,
-            #     min_size=self._jitter_min_scale,
-            #     max_size=self._jitter_max_scale,
-            #     boxes=boxes,
-            # )
-            # imgs, boxes = cv2_transform.random_crop_list(
-            #     imgs, self._crop_size, order="HWC", boxes=boxes
-            # )
-            ''' zoom in augmentation '''
-            # imgs = [cv2_transform.scale(self._jitter_min_scale, img) for img in imgs]
-            # boxes = [
-            #     cv2_transform.scale_boxes(
-            #         self._jitter_min_scale, boxes[0], height, width
-            #     )
-            # ]
             ''' label augmentation '''
-            mean = [v * 255.0 for v in self._data_mean]
-            imgs, boxes = cv2_transform.cdet_augmentation(imgs, boxes, mean=mean)
-            boxes = cv2_transform.box_augmentation(boxes)
             boxes = cv2_transform.resize_boxes(self._crop_size, boxes, imgs[0].shape[0], imgs[0].shape[1])
             imgs = [cv2_transform.resize(self._crop_size, img) for img in imgs]
 
-            if self.random_horizontal_flip:
-                imgs, boxes = cv2_transform.horizontal_flip_list(0.5, imgs, order="HWC", boxes=boxes)
+            #if self.random_horizontal_flip:
+            #    imgs, boxes = cv2_transform.horizontal_flip_list(0.5, imgs, order="HWC", boxes=boxes)
         
-        elif self._split == "val":  # need modified
-            # Short side to test_scale. Non-local and STRG uses 256.
-            # imgs = [cv2_transform.scale(self._crop_size, img) for img in imgs]
-            # boxes = [
-            #     cv2_transform.scale_boxes(
-            #         self._crop_size, boxes[0], height, width
-            #     )
-            # ]
-            # imgs, boxes = cv2_transform.spatial_shift_crop_list(
-            #     self._crop_size, imgs, 1, boxes=boxes
-            # )
+        elif self._split == "val":
             imgs = [cv2_transform.resize(self._crop_size, img) for img in imgs]
             boxes = cv2_transform.resize_boxes(self._crop_size, boxes, height, width)
 
-            if self._test_force_flip:
-                imgs, boxes = cv2_transform.horizontal_flip_list(1, imgs, order="HWC", boxes=boxes)
+            #if self._test_force_flip:
+            #    imgs, boxes = cv2_transform.horizontal_flip_list(1, imgs, order="HWC", boxes=boxes)
 
         elif self._split == "test":  # need modified
-            # Short side to test_scale. Non-local and STRG uses 256.
-            # imgs = [cv2_transform.scale(self._jitter_min_scale, img) for img in imgs]
-            # boxes = [
-            #     cv2_transform.scale_boxes(
-            #         self._jitter_min_scale, boxes[0], height, width
-            #     )
-            # ]
-            # imgs, boxes = cv2_transform.spatial_shift_crop_list(
-            #     self._crop_size, imgs, 1, boxes=boxes
-            # )
             imgs = [cv2_transform.resize(self._crop_size, img) for img in imgs]
             boxes = cv2_transform.resize_boxes(self._crop_size, boxes, height, width)
-
-            # if self._test_force_flip:
-            #     imgs, boxes = cv2_transform.horizontal_flip_list(
-            #         1, imgs, order="HWC", boxes=boxes
-            #     )
-            # mean = [v * 255.0 for v in self._data_mean]
-            # # imgs, boxes, pad_w, pad_h, ratio = cv2_transform.longer_scale(imgs, boxes, self._crop_size, mean)
-            # imgs, boxes, pad_w, pad_h = cv2_transform.cdet_preprocess(imgs, boxes, mean=mean)
-
-            if self._test_force_flip:
-                imgs, boxes = cv2_transform.horizontal_flip_list(1, imgs, order="HWC", boxes=boxes)
+            
+            #if self._test_force_flip:
+            #    imgs, boxes = cv2_transform.horizontal_flip_list(1, imgs, order="HWC", boxes=boxes)
 
         else:
             raise NotImplementedError("Unsupported split mode {}".format(self._split))
@@ -227,14 +180,14 @@ class Ava(torch.utils.data.Dataset):
             )
 
         # Normalize images by mean and std.
-        imgs = [
-            cv2_transform.color_normalization(
-                img,
-                np.array(self._data_mean, dtype=np.float32),
-                np.array(self._data_std, dtype=np.float32),
-            )
-            for img in imgs
-        ]
+        #imgs = [
+        #    cv2_transform.color_normalization(
+        #        img,
+        #        np.array(self._data_mean, dtype=np.float32),
+        #        np.array(self._data_std, dtype=np.float32),
+        #    )
+        #    for img in imgs
+        #]
 
         # Concat list of images to single ndarray.
         imgs = np.concatenate(
@@ -248,12 +201,14 @@ class Ava(torch.utils.data.Dataset):
         imgs = np.ascontiguousarray(imgs)
         imgs = torch.from_numpy(imgs)
         bx_count = boxes[0].shape[0]
-        boxes = cv2_transform.clip_boxes_to_image(
-            boxes[0], imgs[0].shape[1], imgs[0].shape[2]
-        )
+        
+        #print('---1---', boxes)
+        boxes = cv2_transform.clip_boxes_to_image(boxes[0], imgs[0].shape[1], imgs[0].shape[2])
+        #print('---2---', boxes)
         boxes = cv2_transform.transform_cxcywh(boxes, imgs[0].shape[1], imgs[0].shape[2])
+        #print('---3---', boxes)
+        
         assert bx_count == boxes.shape[0]
-
         return imgs, boxes
 
     def __getitem__(self, idx):
@@ -271,23 +226,16 @@ class Ava(torch.utils.data.Dataset):
                 "ori_boxes" and "metadata".
         """
         # Get the frame idxs for current clip. We can use it as center or latest
-
         video_idx, sec_idx, sec, frame_idx = self._keyframe_indices[idx]
         clip_label_list = self._keyframe_boxes_and_labels[video_idx][sec_idx]
 
         assert self.cfg.AVA.IMG_PROC_BACKEND != 'pytorch'
         sample_rate = self._sample_rate
         seq_len = self._video_length * sample_rate
-        seq = get_sequence(
-            frame_idx,
-            seq_len // 2,
-            sample_rate,
-            num_frames=len(self._image_paths[video_idx]),
-        )
+        seq = get_sequence(frame_idx, seq_len // 2, sample_rate, num_frames=len(self._image_paths[video_idx]))
 
         image_paths = [self._image_paths[video_idx][frame - 1] for frame in seq]
         imgs = retry_load_images(image_paths, backend=self.cfg.AVA.IMG_PROC_BACKEND)
-
         assert len(clip_label_list) > 0
         assert len(clip_label_list) <= self._max_objs
         num_objs = len(clip_label_list)
@@ -295,19 +243,16 @@ class Ava(torch.utils.data.Dataset):
         src_height, src_width = imgs[0].shape[0], imgs[0].shape[1]
 
         # Get boxes and labels for current clip.
+        # So, it looks like each clip (e.g. 8 frames) uses the boxes of just ONE frame
         boxes = []
         labels = []
         for box_labels in clip_label_list:
             boxes.append(box_labels[0])
             labels.append(box_labels[1])
-
         boxes = np.array(boxes)
         ori_boxes = boxes.copy()
 
-        imgs, boxes = self._images_and_boxes_preprocessing_cv2(
-            imgs, boxes=boxes
-        )
-
+        imgs, boxes = self._images_and_boxes_preprocessing_cv2(imgs, boxes=boxes)
         inp_height, inp_width = imgs.size(2), imgs.size(3)
 
         assert boxes.shape[1] == 4
@@ -325,59 +270,5 @@ class Ava(torch.utils.data.Dataset):
                     ret_cls[i, cls_ind - 1] = 1
 
         ret = {'clip': imgs, 'cls': ret_cls, 'boxes': ret_boxes, 'metadata':np.array([video_idx, sec, src_width, src_height])}
-
-        return ret
-
-    def _prepare_cdet(self, num_objs, boxes, labels, inp_width, inp_height):
-        output_w = inp_width // self._downsample
-        output_h = inp_height // self._downsample
-        hm = np.zeros((1, output_h, output_w), dtype=np.float32)
-        cls_ids = np.zeros((self._max_objs, self.n_classes), dtype=np.float32)
-        wh = np.zeros((self._max_objs, 2), dtype=np.float32)
-        reg = np.zeros((self._max_objs, 2), dtype=np.float32)
-        if self._only_detection:
-            ind = np.zeros(self._max_objs, dtype=np.int64)
-        else:
-            ind = np.zeros((self._max_objs, 3), dtype=np.int64)
-        reg_mask = np.zeros(self._max_objs, dtype=np.uint8)
-        num_gts = 0
-        for i in range(num_objs):
-            label = np.array(labels[i])
-            assert len(label) > 0, 'Fatal Error'
-            cx = (boxes[i][0] + boxes[i][2]) / 2 / self._downsample
-            cy = (boxes[i][1] + boxes[i][3]) / 2 / self._downsample
-            cx = np.clip(cx, 0, output_w - 1)
-            cy = np.clip(cy, 0, output_h - 1)
-            w = (boxes[i][2] - boxes[i][0]) / self._downsample
-            h = (boxes[i][3] - boxes[i][1]) / self._downsample
-            ty = boxes[i][1] / self._downsample
-            by = boxes[i][3] / self._downsample
-            ty = cy - (cy - ty) * 2 / 3
-            by = cy + (by - cy) * 2 / 3
-            ty = np.clip(ty, 0, output_h - 1)
-            by = np.clip(by, 0, output_h - 1)
-            if w > 0 and h > 0:
-                assert cx - w / 2 >= 0 and cx + w / 2 <= output_w
-                assert cy - h / 2 >= 0 and cy + h / 2 <= output_h
-                num_gts += 1
-                radius = image.gaussian_radius((math.ceil(h), math.ceil(w)))
-                radius = max(0, int(radius))
-                ct = np.array([cx, cy], dtype=np.float32)  # cx, cy
-                tb = np.array([ty, by], dtype=np.float32)  # top center, down center
-                ct_int = ct.astype(np.int32)  # floor to int
-                tb_int = tb.astype(np.int32)
-                image.draw_umich_gaussian(hm[0], ct_int, radius)
-                for cls_ind in label:
-                    cls_ids[i, cls_ind - 1] = 1
-                wh[i] = 1. * w, 1. * h
-                if self._only_detection:
-                    ind[i] = ct_int[1] * output_w + ct_int[0]
-                else:
-                    ind[i] = ct_int[1] * output_w + ct_int[0], tb_int[0] * output_w + ct_int[0], tb_int[1] * output_w + ct_int[0]
-                reg[i] = ct - ct_int
-                reg_mask[i] = 1
-
-        ret = {'hm': hm, 'wh': wh, 'reg': reg, 'ind': ind, 'reg_mask': reg_mask,
-               'cls_ids': cls_ids, 'num_gts': num_gts}
 
         return ret

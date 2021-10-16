@@ -10,8 +10,9 @@ from torch.autograd import Variable
 from core.utils import *
 from builtins import range as xrange
 import numpy as np
-from core.FocalLoss import *
+#from core.FocalLoss import *
 
+'''
 # this function works for building the groud truth 
 def build_targets(pred_boxes, target, anchors, num_anchors, num_classes, nH, nW, noobject_scale, object_scale, sil_thresh):
     # nH, nW here are number of grids in y and x directions (7, 7 here)
@@ -120,6 +121,7 @@ def build_targets(pred_boxes, target, anchors, num_anchors, num_classes, nH, nW,
     # true values are returned
     return nGT, nCorrect, coord_mask, conf_mask, cls_mask, tx, ty, tw, th, tconf, tcls
 
+
 class RegionLoss(nn.Module):
     # for our model anchors has 10 values and number of anchors is 5
     # parameters: 24, 10 float values, 24, 5
@@ -224,7 +226,7 @@ class RegionLoss(nn.Module):
                                                                nH, nW, self.noobject_scale, self.object_scale, self.thresh)
         cls_mask = (cls_mask == 1)
         #  keep those with high box confidence scores (greater than 0.25) as our final predictions
-        nProposals = int((conf > 0.25).sum().data.item())
+        nProposals = int((conf > 0.10).sum().data.item())
 
         tx    = Variable(tx.cuda())
         ty    = Variable(ty.cuda())
@@ -275,7 +277,7 @@ class RegionLoss(nn.Module):
                     self.l_h.val, self.l_h.avg, self.l_conf.val, self.l_conf.avg,
                     self.l_cls.val, self.l_cls.avg, self.l_total.val, self.l_total.avg))
         return loss
-
+'''
 
 
 
@@ -498,6 +500,8 @@ class RegionLoss_Ava(nn.Module):
         nC = self.num_classes
         nH = output.data.size(2)
         nW = output.data.size(3)
+        import pdb
+        #pdb.set_trace()
 
         # resize the output (all parameters for each anchor can be reached)
         output   = output.view(nB, nA, (5+nC), nH, nW)
@@ -547,12 +551,12 @@ class RegionLoss_Ava(nn.Module):
         # pred_boxes (nB*nA*nH*nW, 4)
         pred_boxes = convert2cpu(pred_boxes.transpose(0,1).contiguous().view(-1,4))
         t2 = time.time()
-
         nGT, nCorrect, coord_mask, conf_mask, cls_mask, tx, ty, tw, th, tconf, tcls = build_targets_Ava(pred_boxes, target, self.anchors, nA, nC, \
                                                                nH, nW, self.noobject_scale, self.object_scale, self.thresh)
         cls_mask = (cls_mask == 1)
         #  keep those with high box confidence scores (greater than 0.25) as our final predictions
         nProposals = int((conf > 0.25).sum().data.item())
+        #pdb.set_trace()
 
         tx    = Variable(tx.cuda())
         ty    = Variable(ty.cuda())

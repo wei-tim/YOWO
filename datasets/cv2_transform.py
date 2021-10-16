@@ -2,6 +2,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 
 import math
+import pdb
 import numpy as np
 
 import cv2
@@ -9,8 +10,11 @@ import cv2
 
 def transform_cxcywh(boxes, height, width):
     """
-    transforms x1y1x2y2 to cxcywh
+    transforms xywh to x1y1x2y2 to cxcywh
     """
+    boxes[:, 2] += boxes[:, 0]
+    boxes[:, 3] += boxes[:, 1]
+
     cx = (boxes[:, 0] + boxes[:, 2]) / (2 * width)
     cy = (boxes[:, 1] + boxes[:, 3]) / (2 * height)
     w  = (boxes[:, 2] - boxes[:, 0]) / width
